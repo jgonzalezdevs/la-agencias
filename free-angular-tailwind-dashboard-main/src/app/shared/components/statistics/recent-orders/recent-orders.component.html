@@ -1,0 +1,491 @@
+<div
+  class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+  <div class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+        {{ 'tickets.title' | translate }}
+      </h3>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        {{ 'tickets.subtitle' | translate }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'filters.agent' | translate }}</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.agent"
+          (ngModelChange)="onFilterChange()"
+          [placeholder]="'filters.searchAgent' | translate"
+          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'filters.origin' | translate }}</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.origin"
+          (ngModelChange)="onFilterChange()"
+          [placeholder]="'filters.searchOrigin' | translate"
+          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'filters.destination' | translate }}</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.destination"
+          (ngModelChange)="onFilterChange()"
+          [placeholder]="'filters.searchDestination' | translate"
+          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'filters.type' | translate }}</label>
+        <select
+          [(ngModel)]="filters.travelType"
+          (ngModelChange)="onFilterChange()"
+          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+          <option value="">{{ 'filters.allTypes' | translate }}</option>
+          <option value="flight">{{ 'filters.flight' | translate }}</option>
+          <option value="bus">{{ 'filters.bus' | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'filters.status' | translate }}</label>
+        <select
+          [(ngModel)]="filters.status"
+          (ngModelChange)="onFilterChange()"
+          class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+          <option value="">{{ 'filters.allStatus' | translate }}</option>
+          <option value="Confirmed">{{ 'filters.confirmed' | translate }}</option>
+          <option value="Pending">{{ 'filters.pending' | translate }}</option>
+          <option value="Cancelled">{{ 'filters.cancelled' | translate }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-3 flex justify-end">
+      <button
+        (click)="clearFilters()"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        {{ 'filters.clearFilters' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="max-w-full overflow-x-auto">
+    <table class="w-full text-left">
+      <thead class="border-y border-gray-100 dark:border-gray-800">
+        <tr>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.agent' | translate }}</th>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.travelRoute' | translate }}</th>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.class' | translate }}</th>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.total' | translate }}</th>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.status' | translate }}</th>
+          <th class="py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400">{{ 'tickets.action' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+        @for (ticket of paginatedData; track ticket.id) {
+        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+          <td class="py-3">
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 overflow-hidden rounded-full">
+                <img [src]="ticket.seller.avatar" [alt]="ticket.seller.name" class="h-10 w-10 object-cover" />
+              </div>
+              <div>
+                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                  {{ ticket.seller.name }}
+                </p>
+                <div class="flex items-center gap-1 mt-0.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                  </svg>
+                  <span class="text-gray-500 text-theme-xs dark:text-gray-400">{{ ticket.seller.rating }} ({{ ticket.seller.totalSales }} sales)</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3">
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
+                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                  {{ ticket.origin }}
+                </p>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-400">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                  {{ ticket.destination }}
+                </p>
+              </div>
+            </div>
+            <span class="text-gray-500 text-theme-xs dark:text-gray-400">
+              {{ ticket.travelDate }} • {{ ticket.travelNumber }}
+            </span>
+          </td>
+          <td class="py-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-light-50 dark:bg-blue-light-500/15 text-theme-xs font-medium text-blue-light-700 dark:text-blue-light-400">
+              @if (ticket.travelType === 'flight') {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V18.5L8 20V21L11.5 20L15 21V20L13 18.5V13.5L21 16Z" fill="currentColor"/>
+                </svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 7C3 6.44772 3.44772 6 4 6H20C20.5523 6 21 6.44772 21 7V17C21 17.5523 20.5523 18 20 18H4C3.44772 18 3 17.5523 3 17V7Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M3 12H21M7 6V18M17 6V18" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              }
+              {{ ticket.class }}
+            </span>
+          </td>
+          <td class="py-3">
+            <p class="font-semibold text-gray-800 text-theme-sm dark:text-white/90">
+              {{ ticket.totalAmount }}
+            </p>
+            <span class="text-gray-500 text-theme-xs dark:text-gray-400">
+              {{ ticket.quantity }} ticket(s)
+            </span>
+          </td>
+          <td class="py-3">
+            <app-badge size="sm" [color]="getBadgeColor(ticket.status)">
+              {{ ticket.status }}
+            </app-badge>
+          </td>
+          <td class="py-3">
+            <button
+              (click)="openTicketDetails(ticket)"
+              class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-brand-600 bg-brand-50 rounded-md hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400 dark:hover:bg-brand-500/25 transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5Z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              {{ 'tickets.viewDetails' | translate }}
+            </button>
+          </td>
+        </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400">
+              {{ 'tickets.noResults' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+    <div class="text-sm text-gray-600 dark:text-gray-400">
+      {{ 'pagination.showing' | translate }} {{ (currentPage - 1) * itemsPerPage + 1 }} {{ 'pagination.to' | translate }} {{ Math.min(currentPage * itemsPerPage, filteredData.length) }} {{ 'pagination.of' | translate }} {{ filteredData.length }} {{ 'pagination.results' | translate }}
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        [class.opacity-50]="currentPage === 1"
+        [class.cursor-not-allowed]="currentPage === 1"
+        class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors disabled:hover:bg-white dark:disabled:hover:bg-gray-800">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ 'pagination.previous' | translate }}
+      </button>
+
+      <div class="flex items-center gap-1">
+        @for (page of [].constructor(totalPages); track $index; let i = $index) {
+          @if (i + 1 === 1 || i + 1 === totalPages || (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)) {
+            <button
+              (click)="goToPage(i + 1)"
+              [class.bg-brand-500]="currentPage === i + 1"
+              [class.text-white]="currentPage === i + 1"
+              [class.border-brand-500]="currentPage === i + 1"
+              [class.bg-white]="currentPage !== i + 1"
+              [class.dark:bg-gray-800]="currentPage !== i + 1"
+              [class.text-gray-700]="currentPage !== i + 1"
+              [class.dark:text-gray-300]="currentPage !== i + 1"
+              class="inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              {{ i + 1 }}
+            </button>
+          } @else if (i + 1 === currentPage - 2 || i + 1 === currentPage + 2) {
+            <span class="px-2 text-gray-500 dark:text-gray-400">...</span>
+          }
+        }
+      </div>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        [class.opacity-50]="currentPage === totalPages"
+        [class.cursor-not-allowed]="currentPage === totalPages"
+        class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors disabled:hover:bg-white dark:disabled:hover:bg-gray-800">
+        {{ 'pagination.next' | translate }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Ticket Details -->
+<div
+  *ngIf="selectedTicket"
+  class="fixed inset-0 z-999999 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+  (click)="closeModal()">
+  <div
+    class="relative w-full max-w-3xl bg-white rounded-2xl shadow-xl dark:bg-gray-900 max-h-[90vh] overflow-hidden flex flex-col"
+    (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div>
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+          {{ 'modal.travelTicketDetails' | translate }}
+        </h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {{ selectedTicket.ticketNumber }} • {{ selectedTicket.travelNumber }}
+        </p>
+      </div>
+      <button
+        (click)="closeModal()"
+        class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-500 dark:text-gray-400">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <!-- Travel Information -->
+      <div class="p-4 rounded-xl bg-gradient-to-br from-brand-50 to-blue-light-50 dark:from-brand-500/10 dark:to-blue-light-500/10 border border-brand-100 dark:border-brand-500/20">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-brand-500 flex items-center justify-center">
+            @if (selectedTicket.travelType === 'flight') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white">
+                <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V18.5L8 20V21L11.5 20L15 21V20L13 18.5V13.5L21 16Z" fill="currentColor"/>
+              </svg>
+            } @else {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white">
+                <path d="M3 7C3 6.44772 3.44772 6 4 6H20C20.5523 6 21 6.44772 21 7V17C21 17.5523 20.5523 18 20 18H4C3.44772 18 3 17.5523 3 17V7Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 12H21M7 6V18M17 6V18" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            }
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ selectedTicket.origin }}</h4>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-400">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ selectedTicket.destination }}</h4>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 mt-2">
+              <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                {{ selectedTicket.travelDate }}
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                {{ selectedTicket.departureTime }} - {{ selectedTicket.arrivalTime }}
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                @if (selectedTicket.travelType === 'flight') {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V18.5L8 20V21L11.5 20L15 21V20L13 18.5V13.5L21 16Z" fill="currentColor"/>
+                  </svg>
+                } @else {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 7C3 6.44772 3.44772 6 4 6H20C20.5523 6 21 6.44772 21 7V17C21 17.5523 20.5523 18 20 18H4C3.44772 18 3 17.5523 3 17V7Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M3 12H21M7 6V18M17 6V18" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                }
+                {{ selectedTicket.carrier }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Travel Agent Information -->
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-brand-500">
+              <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {{ 'modal.travelAgentInfo' | translate }}
+          </h4>
+          <div class="flex items-center gap-3 mb-3">
+            <img [src]="selectedTicket.seller.avatar" [alt]="selectedTicket.seller.name" class="w-12 h-12 rounded-full" />
+            <div>
+              <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.seller.name }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ selectedTicket.seller.email }}</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+              </svg>
+              <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.seller.rating }}</span>
+            </div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ selectedTicket.seller.totalSales }} {{ 'modal.totalSales' | translate }}</span>
+          </div>
+        </div>
+
+        <!-- Passenger Information -->
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-success-500">
+              <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {{ 'modal.passengerInfo' | translate }}
+          </h4>
+          <div class="space-y-2">
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'modal.name' | translate }}</p>
+              <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.buyer.name }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'modal.email' | translate }}</p>
+              <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.buyer.email }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Travel Ticket Details -->
+      <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">{{ 'modal.travelTicketInfo' | translate }}</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ 'tickets.class' | translate }}</p>
+            <div class="flex items-center gap-1.5">
+              @if (selectedTicket.travelType === 'flight') {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-light-500">
+                  <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V18.5L8 20V21L11.5 20L15 21V20L13 18.5V13.5L21 16Z" fill="currentColor"/>
+                </svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-light-500">
+                  <path d="M3 7C3 6.44772 3.44772 6 4 6H20C20.5523 6 21 6.44772 21 7V17C21 17.5523 20.5523 18 20 18H4C3.44772 18 3 17.5523 3 17V7Z" fill="currentColor" stroke-width="2"/>
+                  <path d="M3 12H21M7 6V18M17 6V18" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              }
+              <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.class }}</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ 'tickets.passengers' | translate }}</p>
+            <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.quantity }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Ticket</p>
+            <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.price }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ 'modal.purchaseDate' | translate }}</p>
+            <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.saleDate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Services -->
+      @if (selectedTicket.additionalServices && selectedTicket.additionalServices.length > 0) {
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-success-500">
+              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ 'modal.additionalServices' | translate }}
+          </h4>
+          <div class="space-y-3">
+            @for (service of selectedTicket.additionalServices; track $index) {
+              <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                  @if (service.type === 'hotel') {
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-brand-500">
+                      <path d="M2 22H22M3 11H21M6 11V22M10 11V22M14 11V22M18 11V22M8 7C8 5.89543 8.89543 5 10 5H14C15.1046 5 16 5.89543 16 7V11H8V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M4 22V4C4 3.44772 4.44772 3 5 3H19C19.5523 3 20 3.44772 20 4V22" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  } @else if (service.type === 'car') {
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-warning-500">
+                      <path d="M5 11L7 6H17L19 11M5 11V17H19V11M5 11H19M7 17C6.44772 17 6 17.4477 6 18C6 18.5523 6.44772 19 7 19C7.55228 19 8 18.5523 8 18C8 17.4477 7.55228 17 7 17ZM17 17C16.4477 17 16 17.4477 16 18C16 18.5523 16.4477 19 17 19C17.5523 19 18 18.5523 18 18C18 17.4477 17.5523 17 17 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  } @else {
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue-light-500">
+                      <path d="M3 6H21M3 12H21M9 18H15M6 3H18C19.1046 3 20 3.89543 20 5V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V5C4 3.89543 4.89543 3 6 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  }
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ service.name }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ service.details }}</p>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-white/90 whitespace-nowrap">{{ service.price }}</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Payment Summary -->
+      <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">{{ 'modal.paymentSummary' | translate }}</h4>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'modal.subtotal' | translate }}</span>
+            <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.totalAmount }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'modal.commission' | translate }}</span>
+            <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.commission }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'modal.paymentMethod' | translate }}</span>
+            <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ selectedTicket.paymentMethod }}</span>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'tickets.status' | translate }}</span>
+            <app-badge size="sm" [color]="getBadgeColor(selectedTicket.status)">
+              {{ selectedTicket.status }}
+            </app-badge>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex-shrink-0 flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <button
+        (click)="closeModal()"
+        class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors">
+        {{ 'modal.close' | translate }}
+      </button>
+      <button
+        class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-700 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ 'modal.downloadETicket' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
