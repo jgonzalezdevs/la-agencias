@@ -2,7 +2,7 @@
 from app.schemas.customer import Customer, CustomerCreate, CustomerUpdate
 from app.schemas.location import Location, LocationCreate, LocationUpdate
 from app.schemas.order import Order, OrderCreate, OrderUpdate, OrderWithDetails
-from app.schemas.service import Service, ServiceCreate, ServiceUpdate
+from app.schemas.service import Service, ServiceCreate, ServiceUpdate, ServiceWithDetails
 from app.schemas.stats import (
     PopularTrip as PopularTripSchema,
     PopularTripWithDetails,
@@ -13,6 +13,7 @@ from app.schemas.token import Token, TokenData
 from app.schemas.user import User, UserCreate, UserUpdate
 
 # Rebuild models with forward references after all imports are complete
+ServiceWithDetails.model_rebuild()
 OrderWithDetails.model_rebuild()
 
 __all__ = [
@@ -32,6 +33,7 @@ __all__ = [
     "Service",
     "ServiceCreate",
     "ServiceUpdate",
+    "ServiceWithDetails",
     "Token",
     "TokenData",
     "PopularTripSchema",

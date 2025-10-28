@@ -1,5 +1,6 @@
-from sqlalchemy import String
+from sqlalchemy import String, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from decimal import Decimal
 
 from app.db.base import Base
 
@@ -14,6 +15,8 @@ class Location(Base):
     state: Mapped[str | None] = mapped_column(String(100))
     city: Mapped[str] = mapped_column(String(100), nullable=False)
     airport_code: Mapped[str | None] = mapped_column(String(10))
+    latitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
+    longitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
 
     # Relationships for services (origin and destination)
     services_as_origin: Mapped[list["Service"]] = relationship(

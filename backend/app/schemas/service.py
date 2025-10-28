@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel
 
 from app.models.service import ServiceType
+
+# Type alias for service status
+ServiceStatusType = Literal["activo", "cancelado", "postpuesto"]
 
 
 class ServiceImageBase(BaseModel):
@@ -33,6 +37,7 @@ class ServiceBase(BaseModel):
     """Base service schema with shared fields."""
 
     service_type: ServiceType
+    status: ServiceStatusType = "activo"
     name: str
     description: str | None = None
     cost_price: Decimal
@@ -49,6 +54,7 @@ class ServiceBase(BaseModel):
     destination_location_id: int | None = None
     pnr_code: str | None = None
     company: str | None = None
+    route_guide: str | None = None
     departure_datetime: datetime | None = None
     arrival_datetime: datetime | None = None
 
@@ -73,6 +79,7 @@ class ServiceUpdate(BaseModel):
     """Schema for updating service information."""
 
     service_type: ServiceType | None = None
+    status: ServiceStatusType | None = None
     name: str | None = None
     description: str | None = None
     cost_price: Decimal | None = None
@@ -89,6 +96,7 @@ class ServiceUpdate(BaseModel):
     destination_location_id: int | None = None
     pnr_code: str | None = None
     company: str | None = None
+    route_guide: str | None = None
     departure_datetime: datetime | None = None
     arrival_datetime: datetime | None = None
 

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.customer import Customer
-from app.models.order import Order, OrderStatus
+from app.models.order import Order
 from app.models.service import Service, ServiceType
 from app.models.service_image import ServiceImage
 from app.models.user import User
@@ -131,7 +131,6 @@ async def create_order(
         order_number=generate_order_number(),
         user_id=user.id,
         customer_id=order_data.customer_id,
-        status=OrderStatus.PENDIENTE,
         total_cost_price=Decimal("0.00"),
         total_sale_price=Decimal("0.00")
     )
@@ -177,7 +176,6 @@ async def list_orders(
     db: AsyncSession,
     user_id: int | None = None,
     customer_id: int | None = None,
-    status: OrderStatus | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
     limit: int = 100
@@ -189,7 +187,6 @@ async def list_orders(
         db: Database session
         user_id: Filter by user (operator)
         customer_id: Filter by customer
-        status: Filter by order status
         start_date: Filter by start date
         end_date: Filter by end date
         limit: Maximum number of results
@@ -203,8 +200,51 @@ async def list_orders(
         stmt = stmt.where(Order.user_id == user_id)
     if customer_id:
         stmt = stmt.where(Order.customer_id == customer_id)
-    if status:
-        stmt = stmt.where(Order.status == status)
+    if start_date:
+        stmt = stmt.where(Order.created_at >= start_date)
+    if end_date:
+        stmt = stmt.where(Order.created_at <= end_date)
+
+    stmt = stmt.limit(limit).order_by(Order.created_at.desc())
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
+async def list_orders_with_details(
+    db: AsyncSession,
+    user_id: int | None = None,
+    customer_id: int | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    limit: int = 100
+) -> list[Order]:
+    """
+    List orders with complete details (services, customer, user) with optional filters.
+    This eagerly loads all relationships for performance.
+
+    Args:
+        db: Database session
+        user_id: Filter by user (operator)
+        customer_id: Filter by customer
+        start_date: Filter by start date
+        end_date: Filter by end date
+        limit: Maximum number of results
+
+    Returns:
+        List of orders with all nested relationships loaded
+    """
+    stmt = select(Order).options(
+        selectinload(Order.user),
+        selectinload(Order.customer),
+        selectinload(Order.services).selectinload(Service.images),
+        selectinload(Order.services).selectinload(Service.origin_location),
+        selectinload(Order.services).selectinload(Service.destination_location)
+    )
+
+    if user_id:
+        stmt = stmt.where(Order.user_id == user_id)
+    if customer_id:
+        stmt = stmt.where(Order.customer_id == customer_id)
     if start_date:
         stmt = stmt.where(Order.created_at >= start_date)
     if end_date:

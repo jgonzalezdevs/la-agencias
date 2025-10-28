@@ -1,0 +1,413 @@
+<div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+  <div class="custom-calendar">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <app-modal
+    [isOpen]="isOpen"
+    (close)="closeModal()"
+    className="max-w-4xl p-6 lg:p-10"
+  >
+    <div class="flex flex-col overflow-y-auto custom-scrollbar max-h-[85vh]">
+      <!-- Header -->
+      <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
+        <h5 class="mb-2 font-semibold text-gray-800 text-2xl dark:text-white/90">
+          {{ selectedEvent ? 'Edit Ticket Sale' : 'Register New Ticket Sale' }}
+        </h5>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Register flight and bus ticket sales with complete passenger and trip information
+        </p>
+      </div>
+
+      <form class="mt-6 space-y-6">
+        <!-- Transport Type -->
+        <div>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Transport Type *
+          </label>
+          <div class="flex gap-4">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="transportType"
+                value="flight"
+                [(ngModel)]="transportType"
+                class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800"
+              />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">✈️ Flight</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="transportType"
+                value="bus"
+                [(ngModel)]="transportType"
+                class="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800"
+              />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">🚌 Bus</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Trip Information -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <h6 class="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Trip Information</h6>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Origin *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="origin"
+                name="origin"
+                placeholder="e.g., Lima, Peru"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Destination *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="destination"
+                name="destination"
+                placeholder="e.g., Bogotá, Colombia"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Departure Date *
+              </label>
+              <input
+                type="date"
+                [(ngModel)]="departureDate"
+                name="departureDate"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Carrier/Company *
+              </label>
+              <select
+                [(ngModel)]="carrier"
+                name="carrier"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              >
+                <option value="">Select carrier</option>
+                <option *ngFor="let c of carriers" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Departure Time
+              </label>
+              <input
+                type="time"
+                [(ngModel)]="departureTime"
+                name="departureTime"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Arrival Time
+              </label>
+              <input
+                type="time"
+                [(ngModel)]="arrivalTime"
+                name="arrivalTime"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Passenger Information -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <h6 class="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Passenger Information</h6>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="passengerName"
+                name="passengerName"
+                placeholder="Full name of passenger"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Document Number *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="passengerDocument"
+                name="passengerDocument"
+                placeholder="ID or Passport"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                [(ngModel)]="passengerPhone"
+                name="passengerPhone"
+                placeholder="+51 999 888 777"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Email
+              </label>
+              <input
+                type="email"
+                [(ngModel)]="passengerEmail"
+                name="passengerEmail"
+                placeholder="passenger@example.com"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Ticket Details -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <h6 class="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Ticket Details</h6>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Ticket Number *
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="ticketNumber"
+                name="ticketNumber"
+                placeholder="e.g., AV-2024-001"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Seat Number
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="seatNumber"
+                name="seatNumber"
+                placeholder="e.g., 12A"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Class
+              </label>
+              <select
+                [(ngModel)]="travelClass"
+                name="travelClass"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              >
+                <option value="">Select class</option>
+                <option *ngFor="let tc of travelClasses" [value]="tc">{{ tc }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Price *
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                <input
+                  type="number"
+                  [(ngModel)]="price"
+                  name="price"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  class="h-11 w-full rounded-lg border border-gray-300 bg-white pl-8 pr-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Commission
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+                <input
+                  type="number"
+                  [(ngModel)]="commission"
+                  name="commission"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  class="h-11 w-full rounded-lg border border-gray-300 bg-white pl-8 pr-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Payment Method
+              </label>
+              <select
+                [(ngModel)]="paymentMethod"
+                name="paymentMethod"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+              >
+                <option value="">Select method</option>
+                <option *ngFor="let pm of paymentMethods" [value]="pm">{{ pm }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Status *
+          </label>
+          <div class="flex gap-4">
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="status"
+                value="confirmed"
+                [(ngModel)]="status"
+                class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-800"
+              />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">✓ Confirmed</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="status"
+                value="pending"
+                [(ngModel)]="status"
+                class="w-4 h-4 text-yellow-600 border-gray-300 focus:ring-yellow-500 dark:border-gray-600 dark:bg-gray-800"
+              />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">⏳ Pending</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="status"
+                value="cancelled"
+                [(ngModel)]="status"
+                class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-800"
+              />
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">✗ Cancelled</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ticket Images Upload -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <h6 class="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Ticket Images</h6>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-center w-full">
+              <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:hover:bg-gray-800/50">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG or JPEG (MAX. 5MB)</p>
+                </div>
+                <input
+                  type="file"
+                  class="hidden"
+                  accept="image/*"
+                  multiple
+                  (change)="onFileSelect($event)"
+                />
+              </label>
+            </div>
+
+            <!-- Image Preview Grid -->
+            <div *ngIf="images.length > 0" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div *ngFor="let image of images; let i = index" class="relative group">
+                <img
+                  [src]="image.dataUrl"
+                  [alt]="image.name"
+                  class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                />
+                <button
+                  type="button"
+                  (click)="removeImage(i)"
+                  class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">{{ image.name }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Additional Notes
+          </label>
+          <textarea
+            [(ngModel)]="notes"
+            name="notes"
+            rows="3"
+            placeholder="Any additional information about this ticket..."
+            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 sm:justify-end">
+          <button
+            (click)="closeModal()"
+            type="button"
+            class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:w-auto"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="handleAddOrUpdateEvent()"
+            type="button"
+            class="flex w-full justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 dark:bg-brand-600 dark:hover:bg-brand-700 sm:w-auto"
+          >
+            {{ selectedEvent ? 'Update Ticket' : 'Register Ticket' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </app-modal>
+</div>

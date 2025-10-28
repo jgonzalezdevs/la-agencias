@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.apis.dependencies import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
-from app.models.order import OrderStatus
 from app.schemas import order as order_schemas
 from app.schemas import service as service_schemas
 from app.services import order_service
@@ -43,7 +42,6 @@ async def create_order(
 async def list_orders(
     user_id: int | None = Query(None, description="Filter by operator ID"),
     customer_id: int | None = Query(None, description="Filter by customer ID"),
-    order_status: OrderStatus | None = Query(None, description="Filter by order status"),
     start_date: datetime | None = Query(None, description="Filter by start date"),
     end_date: datetime | None = Query(None, description="Filter by end date"),
     limit: int = Query(100, ge=1, le=500, description="Maximum number of results"),
@@ -59,7 +57,33 @@ async def list_orders(
         db,
         user_id=user_id,
         customer_id=customer_id,
-        status=order_status,
+        start_date=start_date,
+        end_date=end_date,
+        limit=limit
+    )
+    return orders
+
+
+@router.get("/with-details/list", response_model=list[order_schemas.OrderWithDetails])
+async def list_orders_with_details(
+    user_id: int | None = Query(None, description="Filter by operator ID"),
+    customer_id: int | None = Query(None, description="Filter by customer ID"),
+    start_date: datetime | None = Query(None, description="Filter by start date"),
+    end_date: datetime | None = Query(None, description="Filter by end date"),
+    limit: int = Query(100, ge=1, le=500, description="Maximum number of results"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    List orders with complete details (services, customer, user) with optional filters.
+    This is more expensive than the basic list but provides all nested data.
+
+    Requires authentication.
+    """
+    orders = await order_service.list_orders_with_details(
+        db,
+        user_id=user_id,
+        customer_id=customer_id,
         start_date=start_date,
         end_date=end_date,
         limit=limit

@@ -22,6 +22,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     full_name: str | None = None
     password: str | None = None
+    role: str | None = None
     is_active: bool | None = None
 
 
@@ -33,6 +34,7 @@ class UserInDB(UserBase):
     sales_count: int
     is_active: bool
     is_superuser: bool
+    avatar: str | None = None
     created_at: datetime
     updated_at: datetime
 

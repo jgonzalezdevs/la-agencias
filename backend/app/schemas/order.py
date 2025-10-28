@@ -5,8 +5,6 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
-from app.models.order import OrderStatus
-
 
 class OrderBase(BaseModel):
     """Base order schema with shared fields."""
@@ -23,7 +21,7 @@ class OrderCreate(OrderBase):
 class OrderUpdate(BaseModel):
     """Schema for updating order information."""
 
-    status: OrderStatus | None = None
+    pass  # Orders are immutable after creation (services handle status)
 
 
 class OrderInDB(OrderBase):
@@ -32,7 +30,6 @@ class OrderInDB(OrderBase):
     id: int
     order_number: str
     user_id: int | None
-    status: OrderStatus
     total_cost_price: Decimal
     total_sale_price: Decimal
     total_profit: Decimal
@@ -52,4 +49,4 @@ class OrderWithDetails(Order):
 
     user: "User | None" = None
     customer: "Customer"
-    services: list["Service"] = []
+    services: list["ServiceWithDetails"] = []

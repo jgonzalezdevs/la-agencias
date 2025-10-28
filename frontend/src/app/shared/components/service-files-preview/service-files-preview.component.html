@@ -1,0 +1,75 @@
+<div class="space-y-3">
+  <!-- Title -->
+  <h4 *ngIf="showTitle" class="text-sm font-medium text-gray-900 dark:text-white">
+    Archivos Adjuntos
+    <span class="ml-1 text-gray-500 dark:text-gray-400">({{ images?.length || 0 }})</span>
+  </h4>
+
+  <!-- Empty state -->
+  <div *ngIf="!images || images.length === 0"
+       class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    </svg>
+    No hay archivos adjuntos
+  </div>
+
+  <!-- Files grid -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div *ngFor="let image of images"
+         class="relative group cursor-pointer"
+         (click)="openFile(image.image_url)">
+
+      <!-- Image preview -->
+      <div *ngIf="isImage(image.image_url)"
+           class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <img [src]="image.image_url"
+             [alt]="'Archivo ' + image.id"
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+
+        <!-- Overlay on hover -->
+        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+          <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- PDF preview -->
+      <div *ngIf="isPdf(image.image_url)"
+           class="aspect-square rounded-lg overflow-hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex flex-col items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+        <svg class="w-12 h-12 text-red-500 dark:text-red-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+        </svg>
+        <span class="text-xs font-medium text-red-600 dark:text-red-400">PDF</span>
+      </div>
+
+      <!-- Other file types -->
+      <div *ngIf="!isImage(image.image_url) && !isPdf(image.image_url)"
+           class="aspect-square rounded-lg overflow-hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex flex-col items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+        <svg class="w-12 h-12 text-blue-500 dark:text-blue-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+        </svg>
+        <span class="text-xs font-medium text-blue-600 dark:text-blue-400">
+          {{ getFileExtension(image.image_url) }}
+        </span>
+      </div>
+
+      <!-- File name -->
+      <p class="mt-1.5 text-xs text-gray-700 dark:text-gray-300 truncate" [title]="getFileName(image.image_url)">
+        {{ getFileName(image.image_url) }}
+      </p>
+
+      <!-- Download button -->
+      <button
+        (click)="downloadFile(image.image_url, $event)"
+        class="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100 dark:hover:bg-gray-700"
+        title="Descargar">
+        <svg class="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

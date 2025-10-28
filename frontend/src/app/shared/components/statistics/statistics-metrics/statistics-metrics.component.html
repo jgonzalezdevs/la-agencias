@@ -1,0 +1,56 @@
+<div *ngIf="isLoading" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 animate-pulse">
+    <div class="w-12 h-12 bg-gray-200 rounded-xl dark:bg-gray-700"></div>
+    <div class="mt-5 space-y-2">
+      <div class="h-4 bg-gray-200 rounded w-24 dark:bg-gray-700"></div>
+      <div class="h-8 bg-gray-200 rounded w-32 dark:bg-gray-700"></div>
+    </div>
+  </div>
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 animate-pulse">
+    <div class="w-12 h-12 bg-gray-200 rounded-xl dark:bg-gray-700"></div>
+    <div class="mt-5 space-y-2">
+      <div class="h-4 bg-gray-200 rounded w-24 dark:bg-gray-700"></div>
+      <div class="h-8 bg-gray-200 rounded w-32 dark:bg-gray-700"></div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!isLoading && metrics" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+  <!-- Metric Item Start -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+    <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800" [innerHTML]="icons.groupIcon | safeHtml">
+    </div>
+    <div class="flex items-end justify-between mt-5">
+      <div>
+        <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'metrics.customers' | translate }}</span>
+        <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">{{ metrics.total_customers }}</h4>
+      </div>
+      <app-badge [color]="metrics.customers_growth >= 0 ? 'success' : 'error'">
+        <span [innerHTML]="metrics.customers_growth >= 0 ? icons.arrowUpIcon : icons.arrowDownIcon | safeHtml"></span>
+        {{ metrics.customers_growth | number:'1.2-2' }}%
+      </app-badge>
+    </div>
+  </div>
+  <!-- Metric Item End -->
+
+  <!-- Metric Item Start -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+    <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800" [innerHTML]="icons.boxIconLine| safeHtml">
+    </div>
+    <div class="flex items-end justify-between mt-5">
+      <div>
+        <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'metrics.orders' | translate }}</span>
+        <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">{{ metrics.total_paid_orders }}</h4>
+      </div>
+      <app-badge [color]="metrics.orders_growth >= 0 ? 'success' : 'error'">
+        <span [innerHTML]="metrics.orders_growth >= 0 ? icons.arrowUpIcon : icons.arrowDownIcon | safeHtml"></span>
+        {{ metrics.orders_growth | number:'1.2-2' }}%
+      </app-badge>
+    </div>
+  </div>
+  <!-- Metric Item End -->
+</div>
+
+<div *ngIf="errorMessage" class="p-4 text-red-600 bg-red-100 rounded dark:bg-red-900/20 dark:text-red-400">
+  {{ errorMessage }}
+</div>

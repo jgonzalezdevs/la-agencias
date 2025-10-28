@@ -25,6 +25,13 @@ class ServiceType(str, enum.Enum):
     OTHER = "OTHER"
 
 
+class ServiceStatus(str, enum.Enum):
+    """Service status enumeration."""
+    ACTIVO = "activo"
+    CANCELADO = "cancelado"
+    POSTPUESTO = "postpuesto"
+
+
 class Service(Base):
     """Service model using single-table approach for different service types."""
 
@@ -36,6 +43,11 @@ class Service(Base):
     )
     service_type: Mapped[ServiceType] = mapped_column(
         Enum(ServiceType, native_enum=False), nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="activo",
+        nullable=False
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -57,6 +69,7 @@ class Service(Base):
     )
     pnr_code: Mapped[str | None] = mapped_column(String(50))
     company: Mapped[str | None] = mapped_column(String(100))
+    route_guide: Mapped[str | None] = mapped_column(String(255))  # Route guide (e.g., "abc - def - ghi")
     departure_datetime: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     arrival_datetime: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

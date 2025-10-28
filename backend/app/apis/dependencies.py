@@ -28,9 +28,19 @@ async def get_current_user(
     try:
         payload = decode_access_token(token)
         email: str | None = payload.get("sub")
+        token_type: str | None = payload.get("type")
+
+        # Verify it's an access token (not a refresh token)
         if email is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
+        if token_type != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type. Please use an access token.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        token_data = TokenData(email=email, token_type=token_type)
     except JWTError:
         raise credentials_exception
 
@@ -55,7 +65,26 @@ async def get_current_active_user(
 async def get_current_superuser(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ) -> User:
-    """Get current superuser (must be active and superuser)."""
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+    """Get current superuser (must be active and superuser or admin role)."""
+    if not current_user.is_superuser and current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions. Admin access required."
+        )
+    return current_user
+
+
+async def get_admin_or_operator(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+) -> User:
+    """
+    Get current user that is either admin or operator.
+    Used for calendar/orders endpoints that operators can access.
+    """
+    allowed_roles = ['admin', 'operador']
+    if not current_user.is_superuser and current_user.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions. Admin or operator access required."
+        )
     return current_user

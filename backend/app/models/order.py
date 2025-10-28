@@ -16,15 +16,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 
-class OrderStatus(str, enum.Enum):
-    """Order status enumeration."""
-    PENDIENTE = "pendiente"
-    PAGADA = "pagada"
-    CANCELADA = "cancelada"
-
-
 class Order(Base):
-    """Order model for purchase orders."""
+    """Order model for purchase orders. All orders are considered paid."""
 
     __tablename__ = "orders"
 
@@ -32,11 +25,6 @@ class Order(Base):
     order_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     user_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id", ondelete="SET NULL"), index=True)
     customer_id: Mapped[int] = mapped_column(Integer, ForeignKey("customers.id", ondelete="RESTRICT"), nullable=False, index=True)
-    status: Mapped[OrderStatus] = mapped_column(
-        Enum(OrderStatus, native_enum=False),
-        default=OrderStatus.PENDIENTE,
-        nullable=False
-    )
     total_cost_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     total_sale_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     # total_profit is calculated in application logic (not as a generated column for SQLAlchemy compatibility)

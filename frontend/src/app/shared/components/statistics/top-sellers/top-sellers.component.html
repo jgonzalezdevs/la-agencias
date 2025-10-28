@@ -1,0 +1,135 @@
+<div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+  <div class="mb-5 flex items-center justify-between lg:mb-7">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+      Top Sellers Ranking
+    </h3>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+        <p class="mt-4 text-gray-500 dark:text-gray-400">Loading top sellers...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage) {
+    <div class="p-4 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900/20 dark:text-red-400">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Top Sellers List -->
+  @else if (topSellers.length > 0) {
+    <div class="space-y-3">
+      @for (seller of paginatedSellers; track seller.id; let i = $index) {
+        <div class="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]">
+          <!-- Rank Badge -->
+          <div class="flex-shrink-0">
+            <div [class]="getRankColor((currentPage - 1) * itemsPerPage + i + 1) + ' flex h-12 w-12 items-center justify-center rounded-full text-white font-bold text-lg'">
+              <span>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</span>
+            </div>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="flex-shrink-0">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-500 text-lg font-bold text-white">
+              {{ seller.full_name.charAt(0).toUpperCase() }}
+            </div>
+          </div>
+
+          <!-- User Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <h4 class="text-sm font-semibold text-gray-800 truncate dark:text-white/90">
+                {{ seller.full_name }}
+              </h4>
+              @if ((currentPage - 1) * itemsPerPage + i < 3) {
+                <span class="text-lg">{{ getRankIcon((currentPage - 1) * itemsPerPage + i + 1) }}</span>
+              }
+            </div>
+            <p class="text-xs text-gray-500 truncate dark:text-gray-400">
+              {{ seller.email }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Role: <span class="font-medium">{{ seller.role }}</span>
+            </p>
+          </div>
+
+          <!-- Sales Count -->
+          <div class="flex-shrink-0 text-right">
+            <div class="text-2xl font-bold text-brand-500">
+              {{ seller.sales_count }}
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Sales
+            </p>
+          </div>
+
+          <!-- Status Badge -->
+          <div class="flex-shrink-0">
+            <app-badge [color]="seller.is_active ? 'success' : 'error'">
+              {{ seller.is_active ? 'Active' : 'Inactive' }}
+            </app-badge>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (totalPages > 1) {
+      <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
+        <div class="flex items-center gap-2">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Previous Button -->
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+            class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+
+          <!-- Page Numbers -->
+          @for (page of pages; track page) {
+            <button
+              (click)="goToPage(page)"
+              [class.bg-brand-500]="page === currentPage"
+              [class.text-white]="page === currentPage"
+              [class.bg-white]="page !== currentPage"
+              [class.text-gray-700]="page !== currentPage"
+              class="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800 dark:bg-gray-900 dark:text-gray-300 min-w-[40px]">
+              {{ page }}
+            </button>
+          }
+
+          <!-- Next Button -->
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+            class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Empty State -->
+  @else {
+    <div class="py-12 text-center">
+      <p class="text-gray-500 dark:text-gray-400">No sellers found</p>
+    </div>
+  }
+</div>

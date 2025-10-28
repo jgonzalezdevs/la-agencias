@@ -1,0 +1,473 @@
+<div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+  <div class="custom-calendar">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <app-modal
+    [isOpen]="isOpen"
+    (close)="closeModal()"
+    className="max-w-5xl p-6 lg:p-10"
+  >
+    <div class="flex flex-col overflow-y-auto custom-scrollbar max-h-[85vh]">
+      <!-- Header -->
+      <div class="pb-6 border-b border-gray-200 dark:border-gray-700">
+        <h5 class="mb-2 font-semibold text-gray-800 text-2xl dark:text-white/90">
+          {{ selectedEvent ? 'View/Edit Order' : 'Register New Ticket Sale' }}
+        </h5>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Register ticket sales with complete customer, trip information, and services
+        </p>
+      </div>
+
+      <!-- Success/Error Messages -->
+      @if (successMessage) {
+        <div class="mt-4 p-4 rounded-lg bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+          <p class="text-sm text-green-800 dark:text-green-200">{{ successMessage }}</p>
+        </div>
+      }
+
+      @if (errorMessage) {
+        <div class="mt-4 p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
+          <p class="text-sm text-red-800 dark:text-red-200">{{ errorMessage }}</p>
+        </div>
+      }
+
+      <form class="mt-6 space-y-6">
+        <!-- Customer Selection/Creation -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <div class="flex items-center justify-between mb-4">
+            <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Customer Information *</h6>
+            <button
+              type="button"
+              (click)="toggleNewCustomerForm()"
+              class="text-xs text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+            >
+              {{ showNewCustomerForm ? 'Search Existing' : '+ New Customer' }}
+            </button>
+          </div>
+
+          @if (!showNewCustomerForm) {
+            <!-- Customer Search -->
+            <div class="relative">
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="customerSearchQuery"
+                  (input)="onCustomerSearchInput($event)"
+                  name="customerSearch"
+                  placeholder="Search customer by name, email, or document..."
+                  [disabled]="!!selectedCustomer"
+                  class="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 disabled:opacity-50"
+                />
+                @if (selectedCustomer) {
+                  <button
+                    type="button"
+                    (click)="clearCustomerSelection()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
+
+              <!-- Search Results Dropdown -->
+              @if (showCustomerDropdown && !selectedCustomer) {
+                <div class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  @if (isSearchingCustomers) {
+                    <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      Searching...
+                    </div>
+                  }
+                  @if (!isSearchingCustomers && customerSearchResults.length === 0) {
+                    <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                      No customers found
+                    </div>
+                  }
+                  @for (customer of customerSearchResults; track customer.id) {
+                    <button
+                      type="button"
+                      (click)="selectCustomer(customer)"
+                      class="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    >
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">{{ customer.full_name }}</div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ customer.email || 'No email' }} · {{ customer.document_id || 'No document' }}
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+
+              <!-- Selected Customer Display -->
+              @if (selectedCustomer) {
+                <div class="mt-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ selectedCustomer.full_name }}</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    {{ selectedCustomer.email || 'No email' }} · {{ selectedCustomer.document_id || 'No document' }} · {{ selectedCustomer.phone || 'No phone' }}
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (showNewCustomerForm) {
+            <!-- New Customer Form -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Full Name *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="newCustomer.full_name"
+                  name="newCustomerName"
+                  placeholder="Customer full name"
+                  class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Email</label>
+                <input
+                  type="email"
+                  [(ngModel)]="newCustomer.email"
+                  name="newCustomerEmail"
+                  placeholder="customer@example.com"
+                  class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Phone</label>
+                <input
+                  type="tel"
+                  [(ngModel)]="newCustomer.phone"
+                  name="newCustomerPhone"
+                  placeholder="+1 234 567 8900"
+                  class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Document ID</label>
+                <input
+                  type="text"
+                  [(ngModel)]="newCustomer.document_id"
+                  name="newCustomerDocument"
+                  placeholder="ID or Passport number"
+                  class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Address</label>
+                <input
+                  type="text"
+                  [(ngModel)]="newCustomer.address"
+                  name="newCustomerAddress"
+                  placeholder="Full address"
+                  class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90"
+                />
+              </div>
+              <div class="md:col-span-2">
+                <button
+                  type="button"
+                  (click)="createCustomer()"
+                  [disabled]="isSaving || !newCustomer.full_name"
+                  class="w-full md:w-auto px-6 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ isSaving ? 'Creating...' : 'Create Customer' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Services Section -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Tickets & Services *</h6>
+            <button
+              type="button"
+              (click)="addService()"
+              class="px-4 py-2 text-xs font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700"
+            >
+              + Add Ticket/Service
+            </button>
+          </div>
+
+          @for (service of services; track service.tempId; let i = $index) {
+            <div class="mb-4 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50">
+              <!-- Service Header -->
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">{{ getServiceIcon(service.serviceType) }}</span>
+                  <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Service {{ i + 1 }}: {{ service.serviceType }}
+                  </h6>
+                </div>
+                @if (services.length > 1) {
+                  <button
+                    type="button"
+                    (click)="removeService(i)"
+                    class="text-red-600 hover:text-red-700 dark:text-red-400"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
+
+              <!-- Service Type Selection -->
+              <div class="mb-4">
+                <label class="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-400">Service Type *</label>
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="FLIGHT" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">✈️ Flight</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="BUS" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">🚌 Bus</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="HOTEL" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">🏨 Hotel</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="CAR" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">🚗 Car</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="LUGGAGE" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">🧳 Luggage</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input type="radio" [name]="'serviceType' + i" value="OTHER" [(ngModel)]="service.serviceType" class="w-4 h-4 text-brand-600 border-gray-300" />
+                    <span class="ml-2 text-xs">📋 Other</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Basic Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Service Name *</label>
+                  <input type="text" [(ngModel)]="service.name" [name]="'serviceName' + i" placeholder="e.g., Lima to Bogota Flight" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Description</label>
+                  <input type="text" [(ngModel)]="service.description" [name]="'serviceDescription' + i" placeholder="Optional description" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                </div>
+              </div>
+
+              <!-- FLIGHT/BUS Specific Fields -->
+              @if (service.serviceType === 'FLIGHT' || service.serviceType === 'BUS') {
+                <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 mb-3">
+                  <h6 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Trip Details</h6>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Origin *</label>
+                      <select [(ngModel)]="service.originLocationId" [name]="'origin' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        <option [value]="null">Select origin</option>
+                        @for (location of locations; track location.id) {
+                          <option [value]="location.id">{{ location.city }}, {{ location.state }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Destination *</label>
+                      <select [(ngModel)]="service.destinationLocationId" [name]="'destination' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                        <option [value]="null">Select destination</option>
+                        @for (location of locations; track location.id) {
+                          <option [value]="location.id">{{ location.city }}, {{ location.state }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Company</label>
+                      <input type="text" [(ngModel)]="service.company" [name]="'company' + i" placeholder="e.g., Avianca" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">PNR Code</label>
+                      <input type="text" [(ngModel)]="service.pnrCode" [name]="'pnr' + i" placeholder="Booking reference" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Departure Date</label>
+                      <input type="date" [(ngModel)]="service.departureDate" [name]="'depDate' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Departure Time</label>
+                      <input type="time" [(ngModel)]="service.departureTime" [name]="'depTime' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Arrival Date</label>
+                      <input type="date" [(ngModel)]="service.arrivalDate" [name]="'arrDate' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Arrival Time</label>
+                      <input type="time" [(ngModel)]="service.arrivalTime" [name]="'arrTime' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- HOTEL Specific Fields -->
+              @if (service.serviceType === 'HOTEL') {
+                <div class="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 mb-3">
+                  <h6 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Hotel Details</h6>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Hotel Name</label>
+                      <input type="text" [(ngModel)]="service.hotelName" [name]="'hotelName' + i" placeholder="Hotel name" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Reservation Number</label>
+                      <input type="text" [(ngModel)]="service.reservationNumber" [name]="'resNum' + i" placeholder="Confirmation code" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Check-in Date</label>
+                      <input type="date" [(ngModel)]="service.checkInDate" [name]="'checkInDate' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Check-in Time</label>
+                      <input type="time" [(ngModel)]="service.checkInTime" [name]="'checkInTime' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Check-out Date</label>
+                      <input type="date" [(ngModel)]="service.checkOutDate" [name]="'checkOutDate' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Check-out Time</label>
+                      <input type="time" [(ngModel)]="service.checkOutTime" [name]="'checkOutTime' + i" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- LUGGAGE Specific Fields -->
+              @if (service.serviceType === 'LUGGAGE') {
+                <div class="p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 mb-3">
+                  <h6 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Luggage Details</h6>
+                  <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Weight (kg)</label>
+                    <input type="number" [(ngModel)]="service.weightKg" [name]="'weightKg' + i" placeholder="Weight in kilograms" step="0.1" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                  </div>
+                </div>
+              }
+
+              <!-- Pricing -->
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Cost Price</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">$</span>
+                    <input type="number" [(ngModel)]="service.costPrice" [name]="'costPrice' + i" placeholder="0.00" step="0.01" class="h-10 w-full rounded-lg border border-gray-300 bg-white pl-6 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-400">Sale Price *</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">$</span>
+                    <input type="number" [(ngModel)]="service.salePrice" [name]="'salePrice' + i" placeholder="0.00" step="0.01" class="h-10 w-full rounded-lg border border-gray-300 bg-white pl-6 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Document Upload -->
+              <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                <h6 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Documents/Images</h6>
+                <div class="flex items-center justify-center w-full">
+                  <label class="flex flex-col items-center justify-center w-full h-24 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:hover:bg-gray-800/50">
+                    <div class="flex flex-col items-center justify-center pt-2 pb-3">
+                      <svg class="w-6 h-6 mb-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Upload images or PDFs</p>
+                    </div>
+                    <input type="file" class="hidden" accept="image/*,.pdf" multiple (change)="onFileSelect($event, i)" />
+                  </label>
+                </div>
+
+                <!-- Uploaded Images -->
+                @if (service.uploadedImages.length > 0) {
+                  <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    @for (image of service.uploadedImages; track image.filename; let imgIdx = $index) {
+                      <div class="relative group">
+                        <img [src]="image.url" [alt]="image.original_filename" class="w-full h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
+                        <button
+                          type="button"
+                          (click)="removeImage(i, imgIdx)"
+                          class="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                        <div class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 truncate">{{ image.original_filename }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Order Information -->
+        <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+          <h6 class="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Order Information</h6>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Payment Method</label>
+              <select [(ngModel)]="paymentMethod" name="paymentMethod" class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white">
+                <option value="">Select method</option>
+                @for (pm of paymentMethods; track pm) {
+                  <option [value]="pm">{{ pm }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Status</label>
+              <div class="flex gap-3">
+                <label class="flex items-center cursor-pointer">
+                  <input type="radio" name="orderStatus" value="CONFIRMED" [(ngModel)]="orderStatus" class="w-4 h-4 text-green-600" />
+                  <span class="ml-1.5 text-xs">Confirmed</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                  <input type="radio" name="orderStatus" value="PENDING" [(ngModel)]="orderStatus" class="w-4 h-4 text-yellow-600" />
+                  <span class="ml-1.5 text-xs">Pending</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                  <input type="radio" name="orderStatus" value="CANCELLED" [(ngModel)]="orderStatus" class="w-4 h-4 text-red-600" />
+                  <span class="ml-1.5 text-xs">Cancelled</span>
+                </label>
+              </div>
+            </div>
+            <div class="md:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">Notes</label>
+              <textarea [(ngModel)]="orderNotes" name="orderNotes" rows="2" placeholder="Additional notes..." class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            (click)="closeModal()"
+            [disabled]="isSaving"
+            class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="handleSaveOrder()"
+            [disabled]="isSaving || !selectedCustomer || services.length === 0"
+            class="px-6 py-2.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isSaving ? 'Saving...' : selectedEvent ? 'Update Order' : 'Create Order' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </app-modal>
+</div>

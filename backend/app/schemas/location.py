@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from decimal import Decimal
 
 
 class LocationBase(BaseModel):
@@ -8,6 +9,8 @@ class LocationBase(BaseModel):
     state: str | None = None
     city: str
     airport_code: str | None = None
+    latitude: Decimal | None = None
+    longitude: Decimal | None = None
 
 
 class LocationCreate(LocationBase):
@@ -23,6 +26,8 @@ class LocationUpdate(BaseModel):
     state: str | None = None
     city: str | None = None
     airport_code: str | None = None
+    latitude: Decimal | None = None
+    longitude: Decimal | None = None
 
 
 class LocationInDB(LocationBase):

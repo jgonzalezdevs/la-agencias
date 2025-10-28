@@ -104,29 +104,64 @@ async def get_profit_stats(
 async def get_popular_trips(
     db: AsyncSession,
     limit: int = 10
-) -> list[PopularTrip]:
+) -> list[dict]:
     """
-    Get ranking of most sold routes.
+    Get ranking of most sold routes based on actual services sold.
+    Calculates dynamically from services table (FLIGHT and BUS types).
 
     Args:
         db: Database session
         limit: Maximum number of results
 
     Returns:
-        List of popular trips with location details
+        List of popular trips with location details and sales count
     """
+    from app.models.service import Service, ServiceType
+
+    # Query to count services by route (origin -> destination)
+    # Only count FLIGHT and BUS services from paid orders
     stmt = (
-        select(PopularTrip)
-        .options(
-            selectinload(PopularTrip.origin_location),
-            selectinload(PopularTrip.destination_location)
+        select(
+            Service.origin_location_id,
+            Service.destination_location_id,
+            func.count(Service.id).label("sales_count")
         )
-        .order_by(PopularTrip.sales_count.desc())
+        .join(Order, Service.order_id == Order.id)
+        .where(
+            Service.service_type.in_([ServiceType.FLIGHT, ServiceType.BUS]),
+            Service.origin_location_id.is_not(None),
+            Service.destination_location_id.is_not(None),
+        )
+        .group_by(Service.origin_location_id, Service.destination_location_id)
+        .order_by(func.count(Service.id).desc())
         .limit(limit)
     )
 
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    rows = result.all()
+
+    # Fetch location details for each route
+    popular_trips = []
+    for row in rows:
+        # Get origin location
+        origin_stmt = select(Location).where(Location.id == row.origin_location_id)
+        origin_result = await db.execute(origin_stmt)
+        origin_location = origin_result.scalar_one_or_none()
+
+        # Get destination location
+        dest_stmt = select(Location).where(Location.id == row.destination_location_id)
+        dest_result = await db.execute(dest_stmt)
+        dest_location = dest_result.scalar_one_or_none()
+
+        if origin_location and dest_location:
+            popular_trips.append({
+                "id": row.origin_location_id * 1000 + row.destination_location_id,  # Generate unique ID
+                "origin_location": origin_location,
+                "destination_location": dest_location,
+                "sales_count": row.sales_count
+            })
+
+    return popular_trips
 
 
 async def get_top_sellers(

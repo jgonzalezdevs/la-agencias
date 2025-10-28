@@ -1,0 +1,164 @@
+{
+  "nav": {
+    "dashboard": "Painel de Controle",
+    "calendar": "Calendário",
+    "profile": "Perfil",
+    "userManagement": "Gestão de Usuários",
+    "forms": "Formulários",
+    "tables": "Tabelas",
+    "settings": "Configurações",
+    "pages": "Páginas",
+    "charts": "Gráficos",
+    "uiElements": "Elementos de UI",
+    "authentication": "Autenticação",
+    "statistics": "Estatísticas",
+    "export": "Exportar Relatórios",
+    "formElements": "Elementos de Formulário",
+    "basicTables": "Tabelas Básicas",
+    "blankPage": "Página em Branco",
+    "404Error": "Erro 404",
+    "lineChart": "Gráfico de Linhas",
+    "barChart": "Gráfico de Barras",
+    "alerts": "Alertas",
+    "avatar": "Avatar",
+    "badge": "Emblema",
+    "buttons": "Botões",
+    "images": "Imagens",
+    "videos": "Vídeos",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar"
+  },
+  "header": {
+    "searchPlaceholder": "Pesquisar ou digitar comando...",
+    "notifications": "Notificações",
+    "profile": "Perfil",
+    "logout": "Sair"
+  },
+  "tickets": {
+    "title": "Tickets de Viagem Vendidos",
+    "subtitle": "Vendas recentes de tickets de viagem dos seus agentes",
+    "agent": "Agente",
+    "travelRoute": "Rota de Viagem",
+    "class": "Classe",
+    "total": "Total",
+    "status": "Status",
+    "action": "Ação",
+    "viewDetails": "Ver Detalhes",
+    "passengers": "Passageiros",
+    "tickets": "Tickets",
+    "noResults": "Nenhum ticket encontrado que corresponda aos seus filtros."
+  },
+  "filters": {
+    "agent": "Agente",
+    "origin": "Origem",
+    "destination": "Destino",
+    "type": "Tipo",
+    "status": "Status",
+    "allTypes": "Todos os Tipos",
+    "allStatus": "Todos os Status",
+    "flight": "Voo",
+    "bus": "Ônibus",
+    "confirmed": "Confirmado",
+    "pending": "Pendente",
+    "cancelled": "Cancelado",
+    "clearFilters": "Limpar Filtros",
+    "searchAgent": "Pesquisar agente...",
+    "searchOrigin": "Pesquisar origem...",
+    "searchDestination": "Pesquisar destino..."
+  },
+  "pagination": {
+    "showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "previous": "Anterior",
+    "next": "Próximo"
+  },
+  "modal": {
+    "travelTicketDetails": "Detalhes do Ticket de Viagem",
+    "travelInformation": "Informações da Viagem",
+    "travelAgentInfo": "Informações do Agente de Viagens",
+    "passengerInfo": "Informações do Passageiro",
+    "travelTicketInfo": "Detalhes do Ticket de Viagem",
+    "additionalServices": "Serviços Adicionais",
+    "paymentSummary": "Resumo do Pagamento",
+    "close": "Fechar",
+    "downloadETicket": "Baixar E-Ticket",
+    "name": "Nome",
+    "email": "E-mail",
+    "purchaseDate": "Data da Compra",
+    "subtotal": "Subtotal",
+    "commission": "Comissão",
+    "paymentMethod": "Método de Pagamento",
+    "totalSales": "vendas totais"
+  },
+  "destinations": {
+    "title": "Principais Destinos de Viagem",
+    "subtitle": "Destinos e rotas mais populares"
+  },
+  "common": {
+    "and": "e",
+    "viewMore": "Ver Mais",
+    "delete": "Excluir",
+    "close": "Fechar",
+    "download": "Baixar"
+  },
+  "metrics": {
+    "customers": "Clientes",
+    "orders": "Pedidos",
+    "revenue": "Receita",
+    "sales": "Vendas",
+    "target": "Meta"
+  },
+  "monthlySales": {
+    "title": "Vendas Mensais",
+    "total": "Total:",
+    "sales": "Vendas"
+  },
+  "monthlyTarget": {
+    "dailyTarget": "Meta Diária",
+    "monthlyTarget": "Meta Mensal",
+    "annualTarget": "Meta Anual",
+    "dailyDescription": "Meta que você estabeleceu para cada dia",
+    "monthlyDescription": "Meta que você estabeleceu para cada mês",
+    "annualDescription": "Meta que você estabeleceu para o ano",
+    "dailyMessage": "Você ganhou $850 hoje, é mais do que ontem. Continue com o bom trabalho!",
+    "monthlyMessage": "Você ganhou $3287 hoje, é mais do que no mês passado. Continue com o bom trabalho!",
+    "annualMessage": "Você ganhou $164K este ano, você está no caminho certo para atingir sua meta anual!",
+    "today": "Hoje",
+    "thisMonth": "Este Mês",
+    "target": "Meta",
+    "revenue": "Receita"
+  },
+  "statistics": {
+    "title": "Estatísticas",
+    "description": "Meta que você estabeleceu para cada mês",
+    "sales": "Vendas",
+    "revenue": "Receita"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Fev",
+    "mar": "Mar",
+    "apr": "Abr",
+    "may": "Mai",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Ago",
+    "sep": "Set",
+    "oct": "Out",
+    "nov": "Nov",
+    "dec": "Dez"
+  },
+  "travelClass": {
+    "business": "Business",
+    "standard": "Padrão",
+    "firstClass": "Primeira Classe",
+    "economy": "Econômica"
+  },
+  "paymentMethods": {
+    "creditCard": "Cartão de Crédito",
+    "payPal": "PayPal",
+    "debitCard": "Cartão de Débito"
+  }
+}
