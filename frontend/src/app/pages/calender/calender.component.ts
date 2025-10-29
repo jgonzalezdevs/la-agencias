@@ -692,7 +692,7 @@ export class CalenderComponent implements AfterViewInit {
           try {
             calendarApi.addEvent(event);
             if (index < 3) {
-              console.log(`  ✓ Added event ${index + 1}:`, event.title, event.start);
+              console.log(`  ✓ Added event ${index + 1}:`, (event as any).title, (event as any).start);
             }
           } catch (error) {
             console.error('❌ Error adding event:', error, event);
@@ -929,12 +929,11 @@ export class CalenderComponent implements AfterViewInit {
     this.ordersService.getOrderDetails(orderId).subscribe({
       next: (order) => {
         this.selectedEvent = {
-          id: event.id,
           orderId: orderId,
           title: event.title,
           start: event.startStr,
           extendedProps: event.extendedProps
-        };
+        } as any;
 
         // Populate customer
         this.selectedCustomer = order.customer;
@@ -956,18 +955,18 @@ export class CalenderComponent implements AfterViewInit {
   }
 
   viewEventDetails(event: CalendarEvent) {
-    const orderId = parseInt(event.id as string);
+    const eventAny = event as any;
+    const orderId = parseInt(eventAny.id as string);
 
     // Load full order details
     this.ordersService.getOrderDetails(orderId).subscribe({
       next: (order) => {
         this.selectedEvent = {
-          id: event.id,
           orderId: orderId,
-          title: event.title,
-          start: event.start,
+          title: eventAny.title,
+          start: eventAny.start,
           extendedProps: event.extendedProps
-        };
+        } as any;
 
         // Populate customer
         this.selectedCustomer = order.customer;
