@@ -25,8 +25,8 @@ RUN apk add --no-cache curl
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy built application from builder
-COPY --from=builder /app/dist/ng-tailadmin /usr/share/nginx/html
+# Copy built application from builder (Angular 20+ outputs to browser subfolder)
+COPY --from=builder /app/dist/ng-tailadmin/browser /usr/share/nginx/html
 
 # Create non-root user for nginx
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
