@@ -24,6 +24,9 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
+# Install bcrypt first to ensure it compiles with proper dependencies
+RUN pip install --no-cache-dir bcrypt==4.3.0
+
 # Install dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root --only main
