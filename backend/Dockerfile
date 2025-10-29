@@ -7,9 +7,11 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Install system dependencies (including build tools for bcrypt)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    g++ \
+    libffi-dev \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,9 +35,10 @@ FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Install runtime dependencies
+# Install runtime dependencies (including libffi for bcrypt)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
+    libffi8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
