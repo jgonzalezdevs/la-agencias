@@ -16,6 +16,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError 
 import { DatePickerComponent } from '../../shared/components/form/date-picker/date-picker.component';
 import { TimePickerComponent } from '../../shared/components/form/time-picker/time-picker.component';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../environments/environment';
 
 interface TicketService {
   tempId: string;
@@ -1135,7 +1136,7 @@ export class CalenderComponent implements AfterViewInit {
       return url;
     }
     // If URL is relative, prepend backend base URL
-    const backendUrl = 'http://localhost:5050';
+    const backendUrl = environment.apiUrl.replace('/api/v1', '');
     return `${backendUrl}${url.startsWith('/') ? url : '/' + url}`;
   }
 

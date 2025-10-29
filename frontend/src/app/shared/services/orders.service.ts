@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 // Service Status (for individual tickets/services)
 export type ServiceStatus = 'activo' | 'cancelado' | 'postpuesto';
@@ -163,7 +164,7 @@ export interface OrderFilters {
   providedIn: 'root'
 })
 export class OrdersService {
-  private apiUrl = 'http://localhost:5050/api/v1';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -275,6 +276,6 @@ export class OrdersService {
    * Get available years from FLIGHT/BUS services
    */
   getAvailableYears(): Observable<{years: number[]}> {
-    return this.http.get<{years: number[]}>('http://localhost:5050/api/v1/stats/available-years');
+    return this.http.get<{years: number[]}>(`${this.apiUrl}/stats/available-years`);
   }
 }

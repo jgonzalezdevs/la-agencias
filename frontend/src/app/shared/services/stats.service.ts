@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface DashboardMetrics {
   total_customers: number;
@@ -60,7 +61,7 @@ export interface PopularTrip {
   providedIn: 'root'
 })
 export class StatsService {
-  private apiUrl = 'http://localhost:5050/api/v1';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

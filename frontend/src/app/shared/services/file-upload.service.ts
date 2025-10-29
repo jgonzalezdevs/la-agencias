@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface UploadResponse {
   filename: string;
@@ -13,7 +14,7 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private apiUrl = 'http://localhost:5050/api/v1';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

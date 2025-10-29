@@ -12,12 +12,13 @@ import {
   GoogleAuthResponse
 } from '../models/auth.model';
 import { JwtService } from './jwt.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5050/api/v1';
+  private apiUrl = environment.apiUrl;
   private tokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
   private userKey = 'current_user';

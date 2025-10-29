@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/auth.model';
+import { environment } from '../../../environments/environment';
 
 export interface UpdateUserProfile {
   email?: string;
@@ -22,8 +23,8 @@ export interface TopSeller {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5050/api/v1';
-  private baseUrl = 'http://localhost:5050';
+  private apiUrl = environment.apiUrl;
+  private baseUrl = environment.apiUrl.replace('/api/v1', '');
 
   constructor(private http: HttpClient) {}
 
