@@ -44,6 +44,8 @@ async def list_orders(
     customer_id: int | None = Query(None, description="Filter by customer ID"),
     start_date: datetime | None = Query(None, description="Filter by start date"),
     end_date: datetime | None = Query(None, description="Filter by end date"),
+    phone_number: str | None = Query(None, description="Filter by customer phone number"),
+    ticket_number: str | None = Query(None, description="Filter by custom ticket number"),
     limit: int = Query(100, ge=1, le=500, description="Maximum number of results"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
@@ -59,6 +61,8 @@ async def list_orders(
         customer_id=customer_id,
         start_date=start_date,
         end_date=end_date,
+        phone_number=phone_number,
+        ticket_number=ticket_number,
         limit=limit
     )
     return orders
@@ -70,6 +74,8 @@ async def list_orders_with_details(
     customer_id: int | None = Query(None, description="Filter by customer ID"),
     start_date: datetime | None = Query(None, description="Filter by start date"),
     end_date: datetime | None = Query(None, description="Filter by end date"),
+    phone_number: str | None = Query(None, description="Filter by customer phone number"),
+    ticket_number: str | None = Query(None, description="Filter by custom ticket number"),
     limit: int = Query(100, ge=1, le=500, description="Maximum number of results"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
@@ -86,6 +92,8 @@ async def list_orders_with_details(
         customer_id=customer_id,
         start_date=start_date,
         end_date=end_date,
+        phone_number=phone_number,
+        ticket_number=ticket_number,
         limit=limit
     )
     return orders

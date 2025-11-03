@@ -129,10 +129,13 @@ async def create_order(
     # Create order
     new_order = Order(
         order_number=generate_order_number(),
+        custom_ticket_number=order_data.custom_ticket_number,
         user_id=user.id,
         customer_id=order_data.customer_id,
         total_cost_price=Decimal("0.00"),
-        total_sale_price=Decimal("0.00")
+        total_sale_price=Decimal("0.00"),
+        observations=order_data.observations,
+        attachment_urls=order_data.attachment_urls
     )
 
     db.add(new_order)
@@ -178,6 +181,8 @@ async def list_orders(
     customer_id: int | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
+    phone_number: str | None = None,
+    ticket_number: str | None = None,
     limit: int = 100
 ) -> list[Order]:
     """
@@ -189,6 +194,8 @@ async def list_orders(
         customer_id: Filter by customer
         start_date: Filter by start date
         end_date: Filter by end date
+        phone_number: Filter by customer phone number
+        ticket_number: Filter by custom ticket number
         limit: Maximum number of results
 
     Returns:
@@ -204,6 +211,12 @@ async def list_orders(
         stmt = stmt.where(Order.created_at >= start_date)
     if end_date:
         stmt = stmt.where(Order.created_at <= end_date)
+    if ticket_number:
+        stmt = stmt.where(Order.custom_ticket_number.ilike(f"%{ticket_number}%"))
+
+    # Filter by phone number requires join with customer table
+    if phone_number:
+        stmt = stmt.join(Customer).where(Customer.phone.ilike(f"%{phone_number}%"))
 
     stmt = stmt.limit(limit).order_by(Order.created_at.desc())
     result = await db.execute(stmt)
@@ -216,6 +229,8 @@ async def list_orders_with_details(
     customer_id: int | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
+    phone_number: str | None = None,
+    ticket_number: str | None = None,
     limit: int = 100
 ) -> list[Order]:
     """
@@ -228,6 +243,8 @@ async def list_orders_with_details(
         customer_id: Filter by customer
         start_date: Filter by start date
         end_date: Filter by end date
+        phone_number: Filter by customer phone number
+        ticket_number: Filter by custom ticket number
         limit: Maximum number of results
 
     Returns:
@@ -249,6 +266,12 @@ async def list_orders_with_details(
         stmt = stmt.where(Order.created_at >= start_date)
     if end_date:
         stmt = stmt.where(Order.created_at <= end_date)
+    if ticket_number:
+        stmt = stmt.where(Order.custom_ticket_number.ilike(f"%{ticket_number}%"))
+
+    # Filter by phone number requires join with customer table
+    if phone_number:
+        stmt = stmt.join(Customer).where(Customer.phone.ilike(f"%{phone_number}%"))
 
     stmt = stmt.limit(limit).order_by(Order.created_at.desc())
     result = await db.execute(stmt)

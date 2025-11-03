@@ -42,27 +42,43 @@ async def export_orders_to_excel(
 ) -> bytes:
     """
     Export orders to Excel format with optional filters.
+    Filters by order creation date (sale date), not by flight departure date.
     """
     # Build query with eager loading
-    query = select(Order).join(Order.services).join(Order.customer).options(
+    query = select(Order).options(
         selectinload(Order.services).selectinload(Service.origin_location),
         selectinload(Order.services).selectinload(Service.destination_location),
-        selectinload(Order.customer)
+        selectinload(Order.customer),
+        selectinload(Order.user)
     )
 
-    # Apply filters
+    # Apply filters to Order created_at (sale date), not flight departure date
     if start_date:
-        query = query.where(Service.departure_datetime >= start_date)
+        start_datetime = datetime.combine(start_date, datetime.min.time())
+        query = query.where(Order.created_at >= start_datetime)
     if end_date:
-        query = query.where(Service.departure_datetime <= end_date)
-    if status:
-        query = query.where(Service.status == status.lower())
-    if service_type:
-        query = query.where(Service.service_type == service_type.upper())
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        query = query.where(Order.created_at <= end_datetime)
 
-    # Execute query
+    # Execute query first to get orders
     result = await db.execute(query)
     orders = result.scalars().unique().all()
+
+    # Filter services within orders if needed
+    if status or service_type:
+        filtered_orders = []
+        for order in orders:
+            filtered_services = order.services
+            if status:
+                filtered_services = [s for s in filtered_services if s.status == status.lower()]
+            if service_type:
+                filtered_services = [s for s in filtered_services if s.service_type.value == service_type.upper()]
+
+            if filtered_services:
+                # Create a copy with filtered services
+                order.services = filtered_services
+                filtered_orders.append(order)
+        orders = filtered_orders
 
     # Create workbook
     wb = Workbook()
@@ -149,27 +165,43 @@ async def export_orders_to_pdf(
 ) -> bytes:
     """
     Export orders to PDF format with optional filters.
+    Filters by order creation date (sale date), not by flight departure date.
     """
     # Build query with eager loading
-    query = select(Order).join(Order.services).join(Order.customer).options(
+    query = select(Order).options(
         selectinload(Order.services).selectinload(Service.origin_location),
         selectinload(Order.services).selectinload(Service.destination_location),
-        selectinload(Order.customer)
+        selectinload(Order.customer),
+        selectinload(Order.user)
     )
 
-    # Apply filters
+    # Apply filters to Order created_at (sale date), not flight departure date
     if start_date:
-        query = query.where(Service.departure_datetime >= start_date)
+        start_datetime = datetime.combine(start_date, datetime.min.time())
+        query = query.where(Order.created_at >= start_datetime)
     if end_date:
-        query = query.where(Service.departure_datetime <= end_date)
-    if status:
-        query = query.where(Service.status == status.lower())
-    if service_type:
-        query = query.where(Service.service_type == service_type.upper())
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        query = query.where(Order.created_at <= end_datetime)
 
-    # Execute query
+    # Execute query first to get orders
     result = await db.execute(query)
     orders = result.scalars().unique().all()
+
+    # Filter services within orders if needed
+    if status or service_type:
+        filtered_orders = []
+        for order in orders:
+            filtered_services = order.services
+            if status:
+                filtered_services = [s for s in filtered_services if s.status == status.lower()]
+            if service_type:
+                filtered_services = [s for s in filtered_services if s.service_type.value == service_type.upper()]
+
+            if filtered_services:
+                # Create a copy with filtered services
+                order.services = filtered_services
+                filtered_orders.append(order)
+        orders = filtered_orders
 
     # Create PDF
     pdf_file = io.BytesIO()
