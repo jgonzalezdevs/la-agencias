@@ -341,9 +341,9 @@ export class CalenderComponent implements AfterViewInit {
     }
 
     this.filteredOriginLocations = this.locations.filter(loc =>
-      loc.city.toLowerCase().includes(query) ||
-      loc.state.toLowerCase().includes(query) ||
-      loc.country.toLowerCase().includes(query) ||
+      loc.city?.toLowerCase().includes(query) ||
+      loc.state?.toLowerCase().includes(query) ||
+      loc.country?.toLowerCase().includes(query) ||
       (loc.airport_code && loc.airport_code.toLowerCase().includes(query))
     );
     this.showOriginDropdown = true;
@@ -416,9 +416,9 @@ export class CalenderComponent implements AfterViewInit {
     }
 
     this.filteredDestinationLocations = this.locations.filter(loc =>
-      loc.city.toLowerCase().includes(query) ||
-      loc.state.toLowerCase().includes(query) ||
-      loc.country.toLowerCase().includes(query) ||
+      loc.city?.toLowerCase().includes(query) ||
+      loc.state?.toLowerCase().includes(query) ||
+      loc.country?.toLowerCase().includes(query) ||
       (loc.airport_code && loc.airport_code.toLowerCase().includes(query))
     );
     this.showDestinationDropdown = true;
