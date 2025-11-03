@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # PostgreSQL Database
   db:
@@ -44,6 +42,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     volumes:
       - ./backend/app:/app/app:ro
+      - backend_uploads:/app/uploads
     networks:
       - boleteria_network
     healthcheck:
@@ -97,4 +96,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  backend_uploads:
     driver: local

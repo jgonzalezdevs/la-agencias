@@ -24,7 +24,7 @@ The platform supports ticket sales for flights and buses, e-commerce features, i
 │   │   └── services/                # Business logic layer
 │   ├── alembic/                     # Database migrations
 │   └── tests/
-└── free-angular-tailwind-dashboard-main/  # Angular frontend
+└── frontend/  # Angular frontend
     ├── src/app/
     │   ├── pages/                   # Feature pages
     │   ├── shared/
@@ -82,11 +82,11 @@ mypy app/                        # Type check
 
 ### Frontend Development (Angular)
 
-**Location**: `/home/jligo/leandro/free-angular-tailwind-dashboard-main/`
+**Location**: `/home/jligo/leandro/frontend/`
 
 **Setup and Run**:
 ```bash
-cd /home/jligo/leandro/free-angular-tailwind-dashboard-main
+cd /home/jligo/leandro/frontend
 
 # Setup (first time)
 npm install
@@ -210,12 +210,12 @@ The backend implements models for users, customers, orders, and locations. The f
 
 Each subdirectory has its own detailed CLAUDE.md:
 - **Backend**: `/home/jligo/leandro/backend/CLAUDE.md` - FastAPI architecture, service patterns, database migrations
-- **Frontend**: `/home/jligo/leandro/free-angular-tailwind-dashboard-main/CLAUDE.md` - Angular architecture, component patterns, layout system
+- **Frontend**: `/home/jligo/leandro/frontend/CLAUDE.md` - Angular architecture, component patterns, layout system
 
 Additional important files:
-- **Backend Spec**: `/home/jligo/leandro/free-angular-tailwind-dashboard-main/BACKEND_SPECIFICATION.md` - Complete backend API specification with entities, endpoints, and use cases
+- **Backend Spec**: `/home/jligo/leandro/frontend/BACKEND_SPECIFICATION.md` - Complete backend API specification with entities, endpoints, and use cases
 - **Backend API Docs**: `/home/jligo/leandro/backend/API_DOCUMENTATION.md` - API endpoint documentation
-- **Frontend README**: `/home/jligo/leandro/free-angular-tailwind-dashboard-main/README.md` - TailAdmin template information
+- **Frontend README**: `/home/jligo/leandro/frontend/README.md` - La Agencias template information
 
 ## Common Development Tasks
 
@@ -228,7 +228,7 @@ poetry shell  # or: source venv/bin/activate
 uvicorn app.main:app --reload
 
 # Terminal 2 - Frontend
-cd /home/jligo/leandro/free-angular-tailwind-dashboard-main
+cd /home/jligo/leandro/frontend
 npm start
 ```
 
@@ -323,7 +323,7 @@ alembic downgrade -1
 
 1. **Create Component**:
    ```bash
-   cd /home/jligo/leandro/free-angular-tailwind-dashboard-main
+   cd /home/jligo/leandro/frontend
    ng generate component pages/my-feature --standalone
    ```
 
