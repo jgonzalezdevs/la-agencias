@@ -35,88 +35,88 @@ export const routes: Routes = [
         component: BlankComponent,
         pathMatch: 'full',
         title:
-          'Dashboard | TailAdmin - Angular Admin Dashboard Template',
+          'Dashboard | La Agencias - Panel de Administración',
       },
       {
         path:'statistics',
         component:StatisticsComponent,
-        title:'Angular Statistics Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Statistics Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'calendar',
         component:CalenderComponent,
-        title:'Angular Calender | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Calender | La Agencias - Panel de Administración'
       },
       {
         path:'export',
         component:ExportComponent,
-        title:'Export Reports | TailAdmin - Angular Admin Dashboard Template'
+        title:'Export Reports | La Agencias - Panel de Administración'
       },
       {
         path:'users',
         component:UserManagementComponent,
-        title:'Gestión de Usuarios | TailAdmin - Angular Admin Dashboard Template'
+        title:'Gestión de Usuarios | La Agencias - Panel de Administración'
       },
       {
         path:'form-elements',
         component:FormElementsComponent,
-        title:'Angular Form Elements Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Form Elements Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'basic-tables',
         component:BasicTablesComponent,
-        title:'Angular Basic Tables Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Basic Tables Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'blank',
         component:BlankComponent,
-        title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Blank Dashboard | La Agencias - Panel de Administración'
       },
       // support tickets
       {
         path:'invoice',
         component:InvoicesComponent,
-        title:'Angular Invoice Details Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Invoice Details Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'line-chart',
         component:LineChartComponent,
-        title:'Angular Line Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Line Chart Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'bar-chart',
         component:BarChartComponent,
-        title:'Angular Bar Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Bar Chart Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'alerts',
         component:AlertsComponent,
-        title:'Angular Alerts Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Alerts Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'avatars',
         component:AvatarElementComponent,
-        title:'Angular Avatars Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Avatars Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'badge',
         component:BadgesComponent,
-        title:'Angular Badges Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Badges Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'buttons',
         component:ButtonsComponent,
-        title:'Angular Buttons Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Buttons Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'images',
         component:ImagesComponent,
-        title:'Angular Images Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Images Dashboard | La Agencias - Panel de Administración'
       },
       {
         path:'videos',
         component:VideosComponent,
-        title:'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title:'Angular Videos Dashboard | La Agencias - Panel de Administración'
       },
     ]
   },
@@ -124,27 +124,27 @@ export const routes: Routes = [
   {
     path:'signin',
     component:SignInComponent,
-    title:'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title:'Angular Sign In Dashboard | La Agencias - Panel de Administración'
   },
   {
     path:'signup',
     component:SignUpComponent,
-    title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title:'Angular Sign Up Dashboard | La Agencias - Panel de Administración'
   },
   {
     path:'forgot-password',
     component:ForgotPasswordComponent,
-    title:'Forgot Password | TailAdmin - Angular Admin Dashboard Template'
+    title:'Forgot Password | La Agencias - Panel de Administración'
   },
   {
     path:'reset-password',
     component:ResetPasswordComponent,
-    title:'Reset Password | TailAdmin - Angular Admin Dashboard Template'
+    title:'Reset Password | La Agencias - Panel de Administración'
   },
   // error pages
   {
     path:'**',
     component:NotFoundComponent,
-    title:'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title:'Angular NotFound Dashboard | La Agencias - Panel de Administración'
   },
 ];

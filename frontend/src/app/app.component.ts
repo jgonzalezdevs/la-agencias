@@ -16,7 +16,7 @@ import { InactivityService } from './shared/services/inactivity.service';
   styleUrl: './app.component.css',
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'Angular Statistics Dashboard | TailAdmin';
+  title = 'Panel de Estadísticas | La Agencias';
   private authSubscription?: Subscription;
 
   constructor(

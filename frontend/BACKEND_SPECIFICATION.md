@@ -1,4 +1,4 @@
-# Especificación de Backend - TailAdmin Dashboard
+# Especificación de Backend - La Agencias Dashboard
 
 ## Índice
 1. [Resumen Ejecutivo](#resumen-ejecutivo)
@@ -12,7 +12,7 @@
 
 ## Resumen Ejecutivo
 
-Basado en el análisis del frontend TailAdmin Angular, se requiere un backend que soporte un **sistema multi-propósito** que incluye:
+Basado en el análisis del frontend La Agencias Angular, se requiere un backend que soporte un **sistema multi-propósito** que incluye:
 
 - **Gestión de venta de tickets** (vuelos y buses)
 - **E-commerce** (productos y transacciones)

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TailAdmin Angular is a free and open-source admin dashboard template built with **Angular 20+**, **TypeScript**, and **Tailwind CSS v4**. It provides a complete set of dashboard UI components, elements, and ready-to-use pages for building modern admin panels.
+La Agencias Angular is a free and open-source admin dashboard template built with **Angular 20+**, **TypeScript**, and **Tailwind CSS v4**. It provides a complete set of dashboard UI components, elements, and ready-to-use pages for building modern admin panels.
 
 ## Development Commands
 
@@ -132,7 +132,7 @@ The application includes:
 
 ### Angular Build Configuration
 - Uses `@angular/build:application` builder (Application builder, not browser builder)
-- Output path: `dist/ng-tailadmin`
+- Output path: `dist/la-agencias`
 - Assets served from `public/` directory
 - ApexCharts loaded globally via scripts array
 
