@@ -11,5 +11,5 @@ api_router.include_router(customers.router, prefix="/customers", tags=["Customer
 api_router.include_router(locations.router, prefix="/locations", tags=["Locations"])
 api_router.include_router(orders.router, prefix="/orders", tags=["Orders & Services"])
 api_router.include_router(stats.router, prefix="/stats", tags=["Statistics"])
-api_router.include_router(upload.router, prefix="/upload", tags=["File Upload"], redirect_slashes=False)
+api_router.include_router(upload.router, prefix="/upload", tags=["File Upload"])
 api_router.include_router(exports.router, prefix="/exports", tags=["Exports"])
