@@ -12,8 +12,21 @@ export class ServiceFilesPreviewComponent {
   @Input() images: ServiceImage[] = [];
   @Input() showTitle: boolean = true;
 
+  get validImages(): ServiceImage[] {
+    // Filter out images with invalid URLs
+    return this.images.filter(img => this.isValidUrl(img.image_url));
+  }
+
+  isValidUrl(url: string): boolean {
+    // Check if URL is not empty and has a filename (not just the upload path)
+    if (!url || url.trim() === '') return false;
+    const urlParts = url.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    return filename && filename.length > 0 && filename !== 'upload';
+  }
+
   isImage(url: string): boolean {
-    return /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
+    return this.isValidUrl(url) && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
   }
 
   isPdf(url: string): boolean {

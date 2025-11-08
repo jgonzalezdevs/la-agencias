@@ -459,7 +459,7 @@ async def add_service_images(
         List of created ServiceImage instances
 
     Raises:
-        ValueError: If service doesn't exist
+        ValueError: If service doesn't exist or URLs are invalid
     """
     # Verify service exists
     result = await db.execute(
@@ -469,10 +469,27 @@ async def add_service_images(
     if not service:
         raise ValueError(f"Service with id {service_id} not found")
 
+    # Validate and filter URLs
+    valid_urls = []
+    for url in image_urls:
+        # Check if URL is not empty and has a proper filename
+        if not url or url.strip() == '':
+            continue
+        # Extract filename from URL
+        url_parts = url.split('/')
+        filename = url_parts[-1] if url_parts else ''
+        # Skip URLs without valid filename (empty or just "upload")
+        if not filename or filename == 'upload':
+            continue
+        valid_urls.append(url)
+
+    if not valid_urls:
+        raise ValueError("No valid image URLs provided")
+
     # Create images
     images = [
         ServiceImage(service_id=service_id, image_url=url)
-        for url in image_urls
+        for url in valid_urls
     ]
 
     db.add_all(images)

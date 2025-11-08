@@ -33,7 +33,7 @@ def generate_unique_filename(original_filename: str) -> str:
     return unique_name
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user)
@@ -79,7 +79,7 @@ async def upload_file(
     }
 
 
-@router.post("/multiple", status_code=status.HTTP_201_CREATED)
+@router.post("/multiple/", status_code=status.HTTP_201_CREATED)
 async def upload_multiple_files(
     files: list[UploadFile] = File(...),
     current_user: User = Depends(get_current_active_user)

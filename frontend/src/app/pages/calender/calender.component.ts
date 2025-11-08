@@ -994,12 +994,19 @@ export class CalenderComponent implements AfterViewInit {
     const checkInDateTime = service.check_in_datetime ? new Date(service.check_in_datetime) : null;
     const checkOutDateTime = service.check_out_datetime ? new Date(service.check_out_datetime) : null;
 
-    const loadedImages = service.images?.map((img: any) => ({
-      filename: img.image_url.split('/').pop(),
-      url: this.makeAbsoluteUrl(img.image_url), // Convert to absolute URL
-      size: 0,
-      original_filename: img.image_url.split('/').pop()
-    })) || [];
+    const loadedImages = service.images
+      ?.filter((img: any) => {
+        // Filter out images with invalid URLs (empty or just the upload path)
+        if (!img.image_url || img.image_url.trim() === '') return false;
+        const filename = img.image_url.split('/').pop();
+        return filename && filename.length > 0 && filename !== 'upload';
+      })
+      .map((img: any) => ({
+        filename: img.image_url.split('/').pop(),
+        url: this.makeAbsoluteUrl(img.image_url), // Convert to absolute URL
+        size: 0,
+        original_filename: img.image_url.split('/').pop()
+      })) || [];
 
     return {
       tempId: `service-${Date.now()}-${Math.random()}`,
