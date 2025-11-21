@@ -24,13 +24,13 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     order_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
-    custom_ticket_number: Mapped[str | None] = mapped_column(String(100), index=True)  # User-provided ticket number
+    # custom_ticket_number: Mapped[str | None] = mapped_column(String(100), index=True)  # User-provided ticket number - Column doesn't exist in DB yet
     user_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id", ondelete="SET NULL"), index=True)
     customer_id: Mapped[int] = mapped_column(Integer, ForeignKey("customers.id", ondelete="RESTRICT"), nullable=False, index=True)
     total_cost_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     total_sale_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
-    observations: Mapped[str | None] = mapped_column(Text)  # Order notes/observations
-    attachment_urls: Mapped[str | None] = mapped_column(Text)  # JSON array of file URLs (PDFs, images)
+    # observations: Mapped[str | None] = mapped_column(Text)  # Order notes/observations - Column doesn't exist in DB yet
+    # attachment_urls: Mapped[str | None] = mapped_column(Text)  # JSON array of file URLs (PDFs, images) - Column doesn't exist in DB yet
     # total_profit is calculated in application logic (not as a generated column for SQLAlchemy compatibility)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False

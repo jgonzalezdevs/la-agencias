@@ -1,7 +1,7 @@
 """Order and service management with transactional logic."""
 
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy import select, delete, func
@@ -129,13 +129,13 @@ async def create_order(
     # Create order
     new_order = Order(
         order_number=generate_order_number(),
-        custom_ticket_number=order_data.custom_ticket_number,
+        # custom_ticket_number=order_data.custom_ticket_number,  # Column doesn't exist in DB yet
         user_id=user.id,
         customer_id=order_data.customer_id,
         total_cost_price=Decimal("0.00"),
         total_sale_price=Decimal("0.00"),
-        observations=order_data.observations,
-        attachment_urls=order_data.attachment_urls
+        # observations=order_data.observations,  # Column doesn't exist in DB yet
+        # attachment_urls=order_data.attachment_urls  # Column doesn't exist in DB yet
     )
 
     db.add(new_order)
@@ -241,8 +241,8 @@ async def list_orders_with_details(
         db: Database session
         user_id: Filter by user (operator)
         customer_id: Filter by customer
-        start_date: Filter by start date
-        end_date: Filter by end date
+        start_date: Filter by service departure date (for calendar filtering)
+        end_date: Filter by service departure date (for calendar filtering)
         phone_number: Filter by customer phone number
         ticket_number: Filter by custom ticket number
         limit: Maximum number of results
@@ -262,16 +262,34 @@ async def list_orders_with_details(
         stmt = stmt.where(Order.user_id == user_id)
     if customer_id:
         stmt = stmt.where(Order.customer_id == customer_id)
-    if start_date:
-        stmt = stmt.where(Order.created_at >= start_date)
-    if end_date:
-        stmt = stmt.where(Order.created_at <= end_date)
+
+    # Filter by service departure dates (for calendar filtering)
+    # Join with Service table to filter by departure_datetime
+    if start_date or end_date:
+        stmt = stmt.join(Service)
+        if start_date:
+            stmt = stmt.where(Service.departure_datetime >= start_date)
+        if end_date:
+            # Add one day to end_date to include the entire day
+            end_date_inclusive = end_date + timedelta(days=1)
+            stmt = stmt.where(Service.departure_datetime < end_date_inclusive)
+        # Make sure to get distinct orders (in case an order has multiple services)
+        stmt = stmt.distinct()
+
     if ticket_number:
-        stmt = stmt.where(Order.custom_ticket_number.ilike(f"%{ticket_number}%"))
+        # Skip ticket_number filter if column doesn't exist in database
+        # stmt = stmt.where(Order.custom_ticket_number.ilike(f"%{ticket_number}%"))
+        pass
 
     # Filter by phone number requires join with customer table
     if phone_number:
-        stmt = stmt.join(Customer).where(Customer.phone.ilike(f"%{phone_number}%"))
+        if not (start_date or end_date):
+            # Only join if we haven't already joined for date filtering
+            stmt = stmt.join(Customer)
+        else:
+            # If we already have joins from date filtering, use outerjoin
+            stmt = stmt.outerjoin(Customer)
+        stmt = stmt.where(Customer.phone_number.ilike(f"%{phone_number}%"))
 
     stmt = stmt.limit(limit).order_by(Order.created_at.desc())
     result = await db.execute(stmt)
@@ -499,3 +517,33 @@ async def add_service_images(
         await db.refresh(image)
 
     return images
+
+
+async def delete_order(
+    db: AsyncSession,
+    order_id: int
+) -> bool:
+    """
+    Delete an order and all associated services and images.
+
+    Args:
+        db: Database session
+        order_id: Order ID to delete
+
+    Returns:
+        True if deleted, False if not found
+    """
+    # Get order
+    order = await get_order(db, order_id)
+    if not order:
+        return False
+
+    try:
+        # Delete order (cascade will delete all services and their images)
+        await db.delete(order)
+        await db.commit()
+        return True
+
+    except Exception as e:
+        await db.rollback()
+        raise e

@@ -15,17 +15,29 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
   const token = authService.getToken();
 
+  console.log('🔒 Auth Interceptor - Request URL:', req.url);
+  console.log('🔒 Has token:', !!token);
+
   // Clone the request and add authorization header if token exists
   let clonedRequest = req;
   if (token) {
     clonedRequest = addTokenToRequest(req, token);
+    console.log('🔒 Token added to request');
+  } else {
+    console.warn('⚠️ No token found, request will be sent without auth header');
   }
 
   return next(clonedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
+      console.error('🔒 Auth Interceptor - Error caught:', error.status, error.message);
       // Handle 401 Unauthorized errors
       if (error.status === 401 && token) {
+        console.log('🔒 Attempting to handle 401 error...');
         return handle401Error(req, next, authService, router, toastService, error);
+      }
+
+      if (error.status === 401 && !token) {
+        console.error('🔒 401 error but no token to refresh - redirecting to login');
       }
 
       return throwError(() => error);
@@ -55,17 +67,22 @@ function handle401Error(
   toastService: ToastService,
   error: HttpErrorResponse
 ): Observable<HttpEvent<any>> {
+  console.log('🔒 handle401Error - Request URL:', req.url);
+
   // Don't attempt refresh on auth endpoints
   if (req.url.includes('/auth/login') || req.url.includes('/auth/refresh')) {
+    console.log('🔒 Auth endpoint detected, not attempting refresh');
     return throwError(() => error);
   }
 
   // If already refreshing, wait for the new token
   if (isRefreshing) {
+    console.log('🔒 Already refreshing, waiting for new token...');
     return refreshTokenSubject.pipe(
       filter(token => token !== null),
       take(1),
       switchMap(token => {
+        console.log('🔒 New token received, retrying request');
         return next(addTokenToRequest(req, token!));
       })
     );
@@ -75,7 +92,8 @@ function handle401Error(
   isRefreshing = true;
   refreshTokenSubject.next(null);
 
-  console.log('Token expired, attempting to refresh...');
+  console.log('🔒 Token expired, attempting to refresh...');
+  console.log('🔒 Has refresh token:', !!authService.getRefreshToken());
 
   return authService.refreshToken().pipe(
     switchMap(tokenResponse => {

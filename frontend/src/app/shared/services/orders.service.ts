@@ -278,4 +278,12 @@ export class OrdersService {
   getAvailableYears(): Observable<{years: number[]}> {
     return this.http.get<{years: number[]}>(`${this.apiUrl}/stats/available-years`);
   }
+
+  /**
+   * Delete an order and all associated services
+   * Only admins can delete orders
+   */
+  deleteOrder(orderId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/orders/${orderId}`);
+  }
 }

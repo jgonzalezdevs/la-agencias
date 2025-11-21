@@ -31,17 +31,21 @@ async def get_available_years(
     current_user: User = Depends(get_current_active_user)  # Operators need this for calendar
 ):
     """
-    Get list of years that have FLIGHT or BUS services with departure dates.
+    Get list of available years for calendar filtering based on service dates.
+
+    Queries the earliest and latest departure_datetime from FLIGHT/BUS services,
+    then returns all years in that range (including years without data).
 
     Returns years in descending order (most recent first).
     Used for filtering calendar events by year.
 
     Requires authentication.
     """
-    # Query distinct years from services with departure_datetime
+    # Query min and max departure dates from services
     result = await db.execute(
         select(
-            func.distinct(extract("year", Service.departure_datetime)).label("year")
+            func.min(Service.departure_datetime).label("min_date"),
+            func.max(Service.departure_datetime).label("max_date")
         )
         .where(
             and_(
@@ -52,16 +56,21 @@ async def get_available_years(
                 )
             )
         )
-        .order_by(extract("year", Service.departure_datetime).desc())
     )
 
-    years = [int(row.year) for row in result.all() if row.year is not None]
+    row = result.first()
 
-    # Add current year if not in list
-    current_year = datetime.now().year
-    if current_year not in years:
-        years.insert(0, current_year)
-        years.sort(reverse=True)
+    if row and row.min_date and row.max_date:
+        # Extract years from min and max dates
+        min_year = row.min_date.year
+        max_year = row.max_date.year
+
+        # Generate all years in range (descending order)
+        years = list(range(max_year, min_year - 1, -1))
+    else:
+        # No services found, return current year as fallback
+        current_year = datetime.now().year
+        years = [current_year]
 
     return {"years": years}
 

@@ -72,8 +72,8 @@ async def list_orders(
 async def list_orders_with_details(
     user_id: int | None = Query(None, description="Filter by operator ID"),
     customer_id: int | None = Query(None, description="Filter by customer ID"),
-    start_date: datetime | None = Query(None, description="Filter by start date"),
-    end_date: datetime | None = Query(None, description="Filter by end date"),
+    start_date: str | None = Query(None, description="Filter by start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter by end date (YYYY-MM-DD)"),
     phone_number: str | None = Query(None, description="Filter by customer phone number"),
     ticket_number: str | None = Query(None, description="Filter by custom ticket number"),
     limit: int = Query(100, ge=1, le=500, description="Maximum number of results"),
@@ -86,12 +86,16 @@ async def list_orders_with_details(
 
     Requires authentication.
     """
+    # Convert date strings to datetime objects if provided
+    start_datetime = datetime.fromisoformat(start_date) if start_date else None
+    end_datetime = datetime.fromisoformat(end_date) if end_date else None
+
     orders = await order_service.list_orders_with_details(
         db,
         user_id=user_id,
         customer_id=customer_id,
-        start_date=start_date,
-        end_date=end_date,
+        start_date=start_datetime,
+        end_date=end_datetime,
         phone_number=phone_number,
         ticket_number=ticket_number,
         limit=limit
@@ -246,6 +250,40 @@ async def add_service_images(
     try:
         images = await order_service.add_service_images(db, service_id, image_urls)
         return images
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Delete an order and all associated services and images.
+
+    Only admins can delete orders.
+
+    Requires authentication and admin role.
+    """
+    # Check if user is admin
+    if not current_user.is_superuser and current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can delete orders"
+        )
+
+    try:
+        deleted = await order_service.delete_order(db, order_id)
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found"
+            )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

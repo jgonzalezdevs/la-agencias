@@ -10,9 +10,9 @@ class OrderBase(BaseModel):
     """Base order schema with shared fields."""
 
     customer_id: int
-    custom_ticket_number: str | None = None
-    observations: str | None = None
-    attachment_urls: str | None = None  # JSON string array of URLs
+    # custom_ticket_number: str | None = None  # Column doesn't exist in DB yet
+    # observations: str | None = None  # Column doesn't exist in DB yet
+    # attachment_urls: str | None = None  # JSON string array of URLs - Column doesn't exist in DB yet
 
 
 class OrderCreate(OrderBase):
@@ -32,13 +32,13 @@ class OrderInDB(OrderBase):
 
     id: int
     order_number: str
-    custom_ticket_number: str | None
+    # custom_ticket_number: str | None  # Column doesn't exist in DB yet
     user_id: int | None
     total_cost_price: Decimal
     total_sale_price: Decimal
     total_profit: Decimal
-    observations: str | None
-    attachment_urls: str | None
+    # observations: str | None  # Column doesn't exist in DB yet
+    # attachment_urls: str | None  # Column doesn't exist in DB yet
     created_at: datetime
 
     model_config = {"from_attributes": True}

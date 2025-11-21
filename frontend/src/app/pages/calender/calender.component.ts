@@ -12,6 +12,7 @@ import { OrdersService, OrderCreate, ServiceCreate, ServiceStatus } from '../../
 import { CustomersService, Customer, CustomerCreate } from '../../shared/services/customers.service';
 import { LocationsService, Location } from '../../shared/services/locations.service';
 import { FileUploadService, UploadResponse } from '../../shared/services/file-upload.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError } from 'rxjs';
 import { DatePickerComponent } from '../../shared/components/form/date-picker/date-picker.component';
 import { TimePickerComponent } from '../../shared/components/form/time-picker/time-picker.component';
@@ -58,11 +59,12 @@ interface TicketService {
 interface CalendarEvent extends EventInput {
   orderId?: number;
   extendedProps: {
+    orderId: number;
     customerId: number;
     customerName: string;
     customerDocument: string;
     customerPhone?: string;
-    orderNumber?: string;
+    orderNumber: string;
     totalAmount: number;
     commission: number;
     status: 'activo' | 'cancelado' | 'postpuesto';
@@ -190,6 +192,7 @@ export class CalenderComponent implements AfterViewInit {
     private customersService: CustomersService,
     private locationsService: LocationsService,
     private fileUploadService: FileUploadService,
+    private authService: AuthService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -213,6 +216,7 @@ export class CalenderComponent implements AfterViewInit {
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
+      titleFormat: { year: 'numeric', month: 'long' }, // Ensure single title format
       selectable: true,
       events: this.events,
       select: (info) => this.handleDateSelect(info),
@@ -566,8 +570,16 @@ export class CalenderComponent implements AfterViewInit {
     this.isLoading = true;
     console.log('🔄 Loading orders for year:', this.selectedYear);
 
+    // Filter by selected year's date range
+    const startDate = `${this.selectedYear}-01-01`;
+    const endDate = `${this.selectedYear}-12-31`;
+
     return new Promise((resolve, reject) => {
-      this.ordersService.listOrdersWithDetails({ limit: 500 }).subscribe({
+      this.ordersService.listOrdersWithDetails({
+        start_date: startDate,
+        end_date: endDate,
+        limit: 500
+      }).subscribe({
       next: (orders) => {
         console.log('📦 Orders received:', orders.length);
         this.allEvents = orders.map(order => {
@@ -609,6 +621,7 @@ export class CalenderComponent implements AfterViewInit {
             borderColor: color,
             textColor: '#FFFFFF',
             extendedProps: {
+              orderId: order.id,
               customerId: order.customer.id,
               customerName: order.customer.full_name,
               customerDocument: order.customer.document_id || 'N/A',
@@ -640,34 +653,40 @@ export class CalenderComponent implements AfterViewInit {
           console.log('📞 Sample phone:', eventsWithPhone[0].extendedProps.customerPhone);
         }
 
-        // Filter events by selected year
-        this.filterEventsByYear();
+        // Backend already filtered by year, so allEvents are the events for this year
+        this.events = this.allEvents;
+
+        // Update calendar with new events
+        this.updateCalendarEvents();
+
+        // Update table view filters
+        this.applyFilters();
+
         this.isLoading = false;
         resolve();
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
+        console.error('❌ Error loading orders:', error);
+        console.error('❌ Error status:', error?.status);
+        console.error('❌ Error detail:', error?.error?.detail || error?.message);
+        console.error('❌ Full error object:', JSON.stringify(error, null, 2));
         this.isLoading = false;
         this.errorMessage = 'Failed to load orders from backend';
-        this.toastr.error('No se pudieron cargar las ventas', 'Error de Carga');
+
+        // Check if it's an authentication error
+        if (error?.status === 401) {
+          this.toastr.error('Sesión expirada. Por favor, inicia sesión nuevamente.', 'Error de Autenticación');
+        } else {
+          this.toastr.error('No se pudieron cargar las ventas', 'Error de Carga');
+        }
         reject(error);
       }
       });
     });
   }
 
-  filterEventsByYear() {
-    console.log('🔍 Filtering events for year:', this.selectedYear);
-    console.log('🔍 Total events before filter:', this.allEvents.length);
-
-    this.events = this.allEvents.filter(event => {
-      if (!event.start || typeof event.start !== 'string') return false;
-      const eventYear = new Date(event.start as string).getFullYear();
-      return eventYear === this.selectedYear;
-    });
-
-    console.log('✅ Events after filter:', this.events.length);
-    console.log('📋 Sample events:', this.events.slice(0, 3));
+  updateCalendarEvents() {
+    console.log('📅 Updating calendar with events:', this.events.length);
 
     // Update calendar with new events
     setTimeout(() => {
@@ -687,7 +706,7 @@ export class CalenderComponent implements AfterViewInit {
         console.log('🗑️ Removing existing events:', allCalendarEvents.length);
         allCalendarEvents.forEach(event => event.remove());
 
-        // Add filtered events
+        // Add events
         console.log('➕ Adding new events:', this.events.length);
         this.events.forEach((event, index) => {
           try {
@@ -724,15 +743,24 @@ export class CalenderComponent implements AfterViewInit {
 
   onYearChange(year: number) {
     console.log('📆 Year changed to:', year);
+    console.log('📆 Current view mode:', this.viewMode);
     this.selectedYear = year;
     // Reload orders to get fresh data (in case new orders were added)
-    this.loadOrders();
+    console.log('📆 Calling loadOrders() from onYearChange...');
+    this.loadOrders().catch(err => {
+      console.error('❌ loadOrders() failed in onYearChange:', err);
+    });
   }
 
   toggleViewMode() {
     this.viewMode = this.viewMode === 'calendar' ? 'table' : 'calendar';
     if (this.viewMode === 'table') {
       this.applyFilters();
+    } else {
+      // Switching back to calendar view - refresh the calendar
+      setTimeout(() => {
+        this.updateCalendarEvents();
+      }, 100);
     }
   }
 
@@ -1661,5 +1689,53 @@ export class CalenderComponent implements AfterViewInit {
       console.error('❌ Error updating customer:', error);
       this.toastr.error('No se pudo actualizar el cliente', 'Error');
     }
+  }
+
+  // Check if current user is admin
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  // Delete order with confirmation
+  deleteOrder(orderId: number, orderNumber: string) {
+    if (!this.isAdmin()) {
+      this.toastr.error('Solo los administradores pueden eliminar órdenes', 'Acceso Denegado');
+      return;
+    }
+
+    const confirmed = confirm(
+      `¿Estás seguro de que deseas eliminar la orden ${orderNumber}?\n\n` +
+      'Esta acción eliminará:\n' +
+      '- La orden completa\n' +
+      '- Todos los servicios asociados\n' +
+      '- Todas las imágenes y archivos\n\n' +
+      'Esta acción NO se puede deshacer.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    console.log('🗑️ Deleting order:', orderId);
+
+    this.ordersService.deleteOrder(orderId).subscribe({
+      next: () => {
+        console.log('✅ Order deleted successfully');
+        this.toastr.success(`Orden ${orderNumber} eliminada exitosamente`, 'Eliminado');
+
+        // Reload orders to refresh the view
+        this.loadOrders();
+      },
+      error: (error) => {
+        console.error('❌ Error deleting order:', error);
+        if (error?.status === 403) {
+          this.toastr.error('No tienes permisos para eliminar órdenes', 'Error');
+        } else if (error?.status === 404) {
+          this.toastr.error('La orden no existe', 'Error');
+        } else {
+          this.toastr.error('No se pudo eliminar la orden', 'Error');
+        }
+      }
+    });
   }
 }
